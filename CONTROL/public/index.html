@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>WoZ Way Control Station</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="woz.css">
+</head>
+
+<div class="main-container">
+    <div class="left-container">
+      <h4 id=namestatus>Bot 0 - Offline</h4>
+
+      <div class="message-input">
+        <label for="message">Message: </label>
+        <input type="text" id="message" name="message" onKeyDown="sendOnEnter()">
+      </div>
+
+      <div class="previous-messages" id="questions">
+      </div>
+
+    </div>
+
+    <div class="right-container">
+      <div class="queue-message-input">
+        <label for="queue_message">Queue message: </label>
+        <input type="text" id="queue_message" name="queue_message" onKeyDown="queueOnEnter()">
+      </div>
+
+      <div class="script-container">
+        <div class="previous-messages" id="queued_questions">
+        </div>
+      </div>
+
+      <div class="script-container">
+        <h4>Script</h4>
+      </div>
+
+      <!-- Script -->
+      <div class="script-container">
+        <h5>Proactive</h5>
+      </div>
+
+      <div class="script-container">
+        <button onClick="playMsg('q1')" class="play">&#9658;</button>
+        <p id="q1">Can you tell me more?</p>
+      </div>
+
+    </div>
+
+    <div class="note-container">
+
+      <div>
+        <div class="name-input">
+          <label for="name">Wizard name: </label>
+          <input type="text" id="name" name="name" onKeyDown="setName()">
+        </div>
+        <h4>Notes</h4>
+        <textarea rows="2" cols="50" id="note" name="note" onKeyDown="sendNote()"></textarea>
+      </div>
+
+
+      <div class="prev-note-container" id="notes">
+
+      </div>
+
+    </div>
+
+</div>
+
+<script src="client.js"></script>
+
+</html>

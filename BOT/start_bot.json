@@ -1,0 +1,10 @@
+{
+    "uid": "bot",
+    "append": true,
+    "watch": false,
+    "script": "bot.js",
+    "sourceDir": "/home/nik/GitRepos/woz-way-v2/BOT/",
+    "logFile": "/home/nik/GitRepos/woz-way-v2/BOT/logs/forever.log",
+    "outFile": "/home/nik/GitRepos/woz-way-v2/BOT/logs/out.log",
+    "errFile": "/home/nik/GitRepos/woz-way-v2/BOT/logs/error.log"
+}

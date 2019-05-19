@@ -1,0 +1,287 @@
+/**
+ * @Author: Nik Martelaro <nikmart>
+ * @Date:   2017-12-11T18:40:02-05:00
+ * @Email:  nmartelaro@gmail.com
+ * @Filename: woz.css
+ * @Last modified by:   nikmart
+ * @Last modified time: 2018-02-23T14:22:45-05:00
+ */
+
+
+
+html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: WhiteSmoke;
+        }
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 2em;
+}
+
+div {
+    box-sizing: border-box;
+}
+.main-container {
+    display: flex;
+    width: 95%;
+    max-height: 100%;
+    /*border: 1px solid red;*/
+}
+.left-container {
+    flex: 0 1 35%;
+    min-height: 100%;
+    max-width: 50%;
+    /*border: 1px solid red;*/
+}
+.right-container {
+    flex: 0 1 35%;
+    display: flex;
+    height: 100%;
+    max-width: 50%;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    /*border: 1px solid red;*/
+}
+.note-container{
+  flex: 0 1 30%;
+  display: flex;
+  height: 100%;
+  max-width: 50%;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  /*border: 1px solid red;*/
+}
+.vol-containers {
+    display: flex;
+    width: 100%;
+    /*height: 100%;*/
+    max-height: 100%;
+    /*border: 1px solid red;*/
+}
+.left-volume {
+  flex: 0 1 90%;
+  max-width: 90%;
+  /*border: 1px solid red;*/
+  align-items: center;
+  justify-content: center;
+}
+.right-volume {
+  flex: 0 1 50%;
+  max-width: 50%;
+  flex-wrap: wrap;
+  /*border: 1px solid red;*/
+}
+.volume-controls {
+  display: flex;
+  width: 100%;
+  /*height: 100%;*/
+  max-height: 100%;
+  /*border: 1px solid red;*/
+  align-items: center;
+  justify-content: center;
+}
+.script-container {
+  display: flex;
+  width: 100%;
+  max-height: 100%;
+  justify-content:flex-start;
+  /*border: 1px solid red;*/
+}
+.prev-note-container {
+  width: 100%;
+  align-items: flex-start;
+  /*border: 1px solid red;*/
+}
+.previous-note{
+  font-size: 12px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  color: Gray;
+}
+
+#note {
+  width: 100%;
+}
+
+label {
+  font-weight: bolder;
+  font-size: 12px;
+}
+
+input[type=range]{
+    -webkit-appearance: none;
+    margin-bottom: 10px;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 300px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #1DB954;
+    margin-top: -6px;
+    cursor: pointer;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+input[type=range]::-ms-track {
+    width: 300px;
+    height: 5px;
+
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+
+label {
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+button {
+  border: 0;
+  border-radius: 5px;
+  background: #B31B1B;
+  padding: 7px 12px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+button:hover {
+  background: #090;
+}
+
+.mute {
+  width: 40%;
+  background: LightGray;
+}
+
+.mute:hover {
+  background: IndianRed;
+}
+
+.half {
+  width: 50%;
+  background: Gray;
+}
+
+.half:hover {
+  background: #1DB954;
+}
+
+.slider {
+  width: 100%;
+  vertical-align: middle;
+}
+
+.play {
+  border: 0;
+  border-radius: 5px;
+  background: Silver;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: #222222;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.play:hover {
+  background: Gray;
+}
+
+.message-input {
+  margin-bottom: 10px;
+}
+
+.song-info {
+  margin-left: 5px;
+}
+
+.queue-message-input {
+  margin-bottom: 10px;
+  width: 98%;
+  margin-left: -5px;
+}
+
+.name-input {
+  margin-bottom: 10px;
+  width: 98%;
+  margin-left: -5px;
+}
+
+input {
+  flex: 2;
+  width: 70%;
+}
+
+input, label {
+  margin: 5px;
+}
+
+input[type=text] {
+  border-radius: 3px;
+  border: .5px solid grey;
+  background: #FAFAFA;
+}
+
+textarea {
+  border-radius: 3px;
+  border: .5px solid grey;
+  background: #FAFAFA;
+}
+
+p {
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: left;
+  font-family: sans-serif
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: sans-serif;
+  margin-top: 5px;
+  margin-bottom: 7px;
+}
+
+#keywords {
+  font-family: sans-serif;
+  font-weight: lighter;
+  font-size: small;
+  color: grey;
+}
+
+
+
+
+/*REFENCES*/
+/*Flexbox split page: https://jsfiddle.net/Lyrjx4zw/5/*/
