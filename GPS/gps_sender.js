@@ -26,6 +26,9 @@ require('log-timestamp');
 var SerialPort = require('serialport'); // serial library
 var Readline = SerialPort.parsers.Readline; // read serial data as lines
 
+// nmea parsing
+var nmea = require("nmea-simple");
+
 //****************************************************************************//
 
 //---------------------- SERIAL COMMUNICATION --------------------------------//
@@ -44,12 +47,30 @@ const parser = new Readline({
 
 // Read data that is available on the serial port and send it to the websocket
 serial.pipe(parser);
-parser.on('data', function (data) {
+parser.on('data', function (line) {
     // Filter for the GPRMC sentence and send it
-    if (data.includes("GNRMC")) {
-        client.publish('gps', data);
-        console.log(data);
-        console.log("GNRMC Sent!");
+    try {
+        var packet = nmea.parseNmeaSentence(line);
+
+        if (packet.sentenceId === "RMC" && packet.status === "valid") {
+            console.log("Got location via RMC packet:", packet.latitude, packet.longitude);
+            var gps_data = {
+                    lat: packet.latitude,
+                    long: packet.longitude,
+                    speed: packet.speedKnots
+                };
+            client.publish('gps', JSON.stringify(gps_data));
+        }
+
+        // if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+        //     console.log("Got location via GGA packet:", packet.latitude, packet.longitude);
+        // }
+
+        if (packet.sentenceId === "GSA") {
+            console.log("There are " + packet.satellites.length + " satellites in view.");
+        }
+    } catch (error) {
+        console.error("Got bad packet:", line, error);
     }
 });
 //----------------------------------------------------------------------------//
