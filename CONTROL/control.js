@@ -27,8 +27,8 @@ var serverPort = 8080;
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
-var client  = mqtt.connect('mqtt://157.131.72.62',
-                           {port: 8134,
+var client = mqtt.connect('mqtt://34.212.144.83',
+                           {port: 1883,
                             protocolId: 'MQIsdp',
                             protocolVersion: 3 });
 //timesatamping
@@ -54,6 +54,7 @@ client.on('connect', function () {
   client.subscribe('status');
   client.subscribe('heartbeat');
   client.subscribe('sys-note');
+  client.subscribe('gps');
   console.log("Waiting for messages...");
 });
 
@@ -64,16 +65,21 @@ client.on('message', function (topic, message) {
 
   if (topic === 'status') {
     console.log(topic, message.toString());
-    io.emit('server-msg', 'rampup')
   }
 
   if (topic === 'heartbeat') {
     //console.log(topic, message.toString());
-    io.emit('server-msg', message.toString())
+    io.emit('server-msg', message.toString());
   }
 
   if (topic === 'sys-note') {
-    io.emit('server-note', message.toString())
+    io.emit('server-note', message.toString());
+  }
+
+  if (topic === 'gps') {
+    var gps_data = JSON.parse(message);
+    io.emit('gps', JSON.stringify(gps_data));
+    console.log(topic, gps_data.lat, gps_data.long);
   }
   //client.end();
 });

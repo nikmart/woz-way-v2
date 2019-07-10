@@ -5,6 +5,10 @@ var queueCount = 0;
 var botStatus = '';
 var heartbeatTimer;
 var wizardName = '';
+var map;
+var mark;
+var current = {lat: 42.992, lng: -78.578};
+var lineCoords=[];
 
 // send out sound message over socket
 function play(id) {
@@ -156,20 +160,34 @@ function clearQuestion(msgID) {
   parent.removeChild(queue_message);
 }
 
-function readEnglish() {
-    lang = 'english';
-    socket.emit('lang', lang);
+//display location with google maps JS API
+function initMap(){
+    // var farm ={lat: 42.992, lng: -78.578};
+    map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
+    mark= new google.maps.Marker({position:current,
+        icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
+    }
+
+function redraw(location){
+    map.setCenter({lat:location.lat, lng:location.lng, alt:0});
+    mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
+
+    lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
+    var lineCoordinatesPath = new google.maps.Polyline({
+        path: lineCoords,
+        geodesic: true,
+        strokeColor: '#2E10FF'
+  });
+  lineCoordinatesPath.setMap(map);
 }
 
-function readFrench() {
-    lang = 'french';
-    socket.emit('lang', lang);
-}
+//
+// setInterval(function(){
+//     current.lat= current.lat+(Math.random()-.5)*.005
+//     current.lng= current.lng+(Math.random()-.5)*.005
+//     redraw(current)
+// }, 5000);
 
-function readJapanese() {
-    lang = 'japanese'
-    socket.emit('lang', lang);
-}
 
 // read the data from the message that the server sent and change the
 // background of the webpage based on the data in the message
@@ -202,4 +220,13 @@ socket.on('server-note', function(msg){
   if (msg.indexOf(wizardName + ':') == -1) {
     addNote(msg);
   }
-})
+});
+
+// Update GPS coordinates
+socket.on('gps', function(msg){
+    var gps_data = JSON.parse(msg);
+    console.log(gps_data);
+    current.lat = gps_data.lat;
+    current.lng = gps_data.long;
+    redraw(current)
+});

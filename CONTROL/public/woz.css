@@ -16,16 +16,24 @@ html, body {
             background: WhiteSmoke;
         }
 body {
-    display: flex;
+    /*display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: flex-start;*/
     margin-top: 2em;
 }
 
 div {
     box-sizing: border-box;
 }
+.map-container{
+  /*position: fixed;*/
+  justify-content: center;
+  top: 0;
+  width: 100%;
+}
 .main-container {
+    justify-content: center;
+    align-items: flex-start;
     display: flex;
     width: 95%;
     max-height: 100%;
