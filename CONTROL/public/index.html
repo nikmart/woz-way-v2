@@ -7,7 +7,12 @@
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" type="text/css" href="woz.css">
 </head>
-
+    <div class="map-container">
+      <h4>Map</h4>
+      <div id="map" style="height:400px;width:100%">
+      </div>
+    </div>
+<body>
 <div class="main-container">
     <div class="left-container">
       <h4 id=namestatus>Bot 0 - Offline</h4>
@@ -68,7 +73,10 @@
     </div>
 
 </div>
-
+</body>
 <script src="client.js"></script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4oEDHPd00uVV5puxmxJUAtc-qCBNfn6U&callback=initMap">
+  </script>
 
 </html>
