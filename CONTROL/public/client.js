@@ -181,12 +181,26 @@ function redraw(location){
   lineCoordinatesPath.setMap(map);
 }
 
-//
-// setInterval(function(){
-//     current.lat= current.lat+(Math.random()-.5)*.005
-//     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current)
-// }, 5000);
+//display location with google maps JS API
+function initMap(){
+    // var farm ={lat: 42.992, lng: -78.578};
+    map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
+    mark= new google.maps.Marker({position:current,
+        icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
+    }
+
+function redraw(location){
+    map.setCenter({lat:location.lat, lng:location.lng, alt:0});
+    mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
+
+    lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
+    var lineCoordinatesPath = new google.maps.Polyline({
+        path: lineCoords,
+        geodesic: true,
+        strokeColor: '#2E10FF'
+  });
+  lineCoordinatesPath.setMap(map);
+}
 
 
 // read the data from the message that the server sent and change the
