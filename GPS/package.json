@@ -1,0 +1,23 @@
+{
+  "name": "gps-sender",
+  "version": "0.0.1",
+  "description": "Send GPS packets via MQTT",
+  "main": "gps_sender.js",
+  "dependencies": {
+    "log-timestamp": "^0.3.0",
+    "mqtt": "^3.0.0",
+    "nmea-simple": "^2.3.0",
+    "package-lock.json": "^1.0.0",
+    "serialport": "^7.1.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gps",
+    "mqtt"
+  ],
+  "author": "Nikolas Martelaro",
+  "license": "MIT"
+}
