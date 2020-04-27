@@ -5,10 +5,44 @@ var queueCount = 0;
 var botStatus = '';
 var heartbeatTimer;
 var wizardName = '';
-var map;
-var mark;
-var current = {lat: 42.992, lng: -78.578};
-var lineCoords=[];
+
+//========================= MAP ==========================//
+var current_loc = {
+    lat: 40.4433,
+    long: -79.9459
+};
+
+var lineCoords = [];
+
+var mymap = L.map('mapid').setView([current_loc.lat, current_loc.long], 16);
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 20,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiaW1hbmRlbCIsImEiOiJjankxdjU4ODMwYTViM21teGFpenpsbmd1In0.IN9K9rp8-I5pTbYTmwRJ4Q'
+}).addTo(mymap);
+
+var mark = L.circle([current_loc.lat, current_loc.long], {
+    color: 'red',
+    fillColor: 'red',
+    fillOpacity: 0.5,
+    radius: 10
+}).addTo(mymap);
+
+path = L.polyline(lineCoords, {
+    color: 'blue'
+}).addTo(mymap);
+
+function update_loc(current_loc) {
+    mymap.panTo([current_loc.lat, current_loc.long]);
+    mark.setLatLng([current_loc.lat, current_loc.long]);
+    path.addLatLng([current_loc.lat, current_loc.long]);
+}
+
+//====================== MAP - END ========================//
+
 
 // send out sound message over socket
 function play(id) {
@@ -160,91 +194,6 @@ function clearQuestion(msgID) {
   parent.removeChild(queue_message);
 }
 
-//display location with google maps JS API
-function initMap(){
-    // var farm ={lat: 42.992, lng: -78.578};
-    map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
-    mark= new google.maps.Marker({position:current,
-        icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
-    }
-
-function redraw(location){
-    map.setCenter({lat:location.lat, lng:location.lng, alt:0});
-    mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
-
-    lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
-    var lineCoordinatesPath = new google.maps.Polyline({
-        path: lineCoords,
-        geodesic: true,
-        strokeColor: '#2E10FF'
-  });
-  lineCoordinatesPath.setMap(map);
-}
-
-//display location with google maps JS API
-
-
-
-// function initMap(){
-//     // var farm ={lat: 42.992, lng: -78.578};
-//     map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
-//     mark= new google.maps.Marker({position:current,
-//         icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
-//     }
-
-// function redraw(location){
-//     map.setCenter({lat:location.lat, lng:location.lng, alt:0});
-//     mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
-
-//     lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
-//     var lineCoordinatesPath = new google.maps.Polyline({
-//         path: lineCoords,
-//         geodesic: true,
-//         strokeColor: '#2E10FF'
-//   });
-//   lineCoordinatesPath.setMap(map);
-// }
-
-// //
-// setInterval(function(){
-//     current.lat= current.lat+(Math.random()-.5)*.005
-//     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current)
-// }, 5000);
-
-
-var map;
-var mark;
-var current = {lat: 42.992, lng: -78.578};
-var lineCoords=[];
-var path;
-
-function initMap(){
-    map = L.map('map').setView([current.lat, current.lng], 13);
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox.satellite',
-    accessToken: 'pk.eyJ1IjoiaW1hbmRlbCIsImEiOiJjankxdjU4ODMwYTViM21teGFpenpsbmd1In0.IN9K9rp8-I5pTbYTmwRJ4Q'}).addTo(map);
-    
-    mark=L.circleMarker([current.lat, current.lng],{
-    color: 'red',
-    radius: 4}).addTo(map)
-    path= L.polyline(lineCoords, {color: 'blue'}).addTo(map)
-}
-
-function redraw(location){
-    map.panTo([location.lat, location.lng])
-    mark.setLatLng([location.lat, location.lng])
-    path.addLatLng([location.lat, location.lng])
-}
-
-// setInterval(function(){
-//     current.lat= current.lat+(Math.random()-.5)*.005
-//     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current)
-// }, 1000);
-
 // read the data from the message that the server sent and change the
 // background of the webpage based on the data in the message
 socket.on('server-msg', function(msg) {
@@ -268,7 +217,6 @@ socket.on('server-msg', function(msg) {
     }
 });
 
-initMap()
 //get notes from other wizards
 socket.on('server-note', function(msg){
   //only print notes from other wizards
@@ -283,7 +231,7 @@ socket.on('server-note', function(msg){
 socket.on('gps', function(msg){
     var gps_data = JSON.parse(msg);
     console.log(gps_data);
-    current.lat = gps_data.lat;
-    current.lng = gps_data.long;
-    redraw(current)
+    current_loc.lat = gps_data.lat;
+    current_loc.long = gps_data.long;
+    update_loc(current_loc);
 });

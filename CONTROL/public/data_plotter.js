@@ -1,3 +1,5 @@
+var socket = io();
+
 function setup() {
   let width = 500;
   let height = 430;
@@ -6,13 +8,13 @@ function setup() {
 }
 
 function draw() {
-  background(220);
-  drawAxes();
-  
+    background(245, 245, 245);
+    drawAxes();
 }
 
 function drawAxes() {
   let length = width/2 - 20;
+  stroke(175)
 
   // Speed
   line(20, 100, width-20, 100);
@@ -24,3 +26,7 @@ function drawAxes() {
   line(250, height-150, width-20, height-150);
   line(width-20-(length/2), height-150-75, width-20-(length/2), (height-150)/2-10+length);
 }
+
+socket.on('server-msg', function (msg) {
+    console.log('msg:', msg);
+});

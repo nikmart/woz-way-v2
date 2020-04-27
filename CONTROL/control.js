@@ -27,10 +27,13 @@ var serverPort = 8080;
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
-var client = mqtt.connect('mqtt://34.212.144.83',
-                           {port: 1883,
-                            protocolId: 'MQIsdp',
-                            protocolVersion: 3 });
+var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com', {
+                port: 1883,
+                protocolId: 'MQIsdp',
+                protocolVersion: 3,
+                username: 'nmartelaro',
+                password: 'mqtt-data-20!'
+});
 //timesatamping
 require('log-timestamp');
 //****************************************************************************//

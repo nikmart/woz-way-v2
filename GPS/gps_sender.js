@@ -14,10 +14,13 @@ Notes: You will need to specify what MQTT server and what serial port you would 
 //****************************** SETUP ***************************************//
 // MQTT Setup
 var mqtt   = require('mqtt');
-var client = mqtt.connect('mqtt://34.212.144.83',
-                           {port: 1883,
-                            protocolId: 'MQIsdp',
-                            protocolVersion: 3 });
+var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com', {
+    port: 1883,
+    protocolId: 'MQIsdp',
+    protocolVersion: 3,
+    username: 'nmartelaro',
+    password: 'mqtt-data-20!'
+});
 
 //timesatamping
 require('log-timestamp');
@@ -62,9 +65,9 @@ parser.on('data', function (line) {
             client.publish('gps', JSON.stringify(gps_data));
         }
 
-        // if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
-        //     console.log("Got location via GGA packet:", packet.latitude, packet.longitude);
-        // }
+        if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+            console.log("Got location via GGA packet:", packet.latitude, packet.longitude);
+        }
 
         if (packet.sentenceId === "GSA") {
             console.log("There are " + packet.satellites.length + " satellites in view.");

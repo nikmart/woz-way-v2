@@ -8,7 +8,7 @@
     "mqtt": "^3.0.0",
     "nmea-simple": "^2.3.0",
     "package-lock.json": "^1.0.0",
-    "serialport": "^7.1.5"
+    "serialport": "^8.0.7"
   },
   "devDependencies": {},
   "scripts": {

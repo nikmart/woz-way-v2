@@ -18,10 +18,13 @@ Notes: You will need to specify what MQTT server you would like to use.
 //****************************** SETUP ***************************************//
 // MQTT Setup
 var mqtt   = require('mqtt');
-var client = mqtt.connect('mqtt://157.131.72.62',
-                           {port: 8134,
+var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
+                           {port: 1883,
                             protocolId: 'MQIsdp',
-                            protocolVersion: 3 });
+                            protocolVersion: 3,
+                            username: 'nmartelaro',
+                            password: 'mqtt-data-20!'
+                          });
 // Text to speech setup
 var say = require('say');
 
