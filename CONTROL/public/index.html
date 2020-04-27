@@ -2,22 +2,34 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>WoZ Way Control Station</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-   crossorigin=""/>
-    <link rel="stylesheet" type="text/css" href="woz.css">
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-   crossorigin=""></script>
+  <meta charset="UTF-8">
+  <title>WoZ Way Control Station</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""/>
+  <link rel="stylesheet" type="text/css" href="woz.css">
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+  integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+  crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
+  <script src="data_plotter.js"></script>
 </head>
-    <div class="map-container">
-      <h4>Map</h4>
-      <div id="map" style="height:400px;width:100%">
-      </div>
+
+<div class="main-container">
+  <div class="map-container">
+    <h4>Map</h4>
+    <div id="map" style="height:400px;width:100%">
     </div>
+  </div>
+  
+  <div class="data-container">
+    <h4>Data</h4>
+    <div id="data" style="height:430px;"></div>
+  </div>
+</div>
+
+
 <body>
 <div class="main-container">
     <div class="left-container">
