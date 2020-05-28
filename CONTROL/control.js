@@ -14,10 +14,14 @@ that will the car will listen to.
 Usage: node control.js
 
 Notes: You will need to specify what MQTT server you would like to use.
+Use the .env file to set your configureations.
 */
 
 //****************************** SETUP ***************************************//
-// Webserver for the cont rol interface front end
+require('dotenv').config() // configurations and passwords
+const BOT = process.env.BOT
+
+// Webserver for the control interface front end
 var express = require('express'); // web server application
 var http = require('http');				// http basics
 var app = express();							// instantiate express server
@@ -27,15 +31,21 @@ var serverPort = 8080;
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
-var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com', {
-                port: 1883,
+var client = mqtt.connect(process.env.MQTT_SERVER, {
+                port: process.env.MQTT_PORT,
                 protocolId: 'MQIsdp',
                 protocolVersion: 3,
-                username: 'nmartelaro',
-                password: 'mqtt-data-20!'
+                username: process.env.MQTT_USER,
+                password: process.env.MQTT_PASSWORD
 });
+
 //timesatamping
 require('log-timestamp');
+
+var current_loc = {
+  lat: 40.4433,
+  long: -79.9459
+};
 //****************************************************************************//
 
 //****************************** WEB INTERFACE *******************************//
@@ -57,7 +67,8 @@ client.on('connect', function () {
   client.subscribe('status');
   client.subscribe('heartbeat');
   client.subscribe('sys-note');
-  client.subscribe('gps');
+  client.subscribe('djbot-01/data/gps/latitude');
+  client.subscribe('djbot-01/data/gps/longitude');
   console.log("Waiting for messages...");
 });
 
@@ -79,10 +90,14 @@ client.on('message', function (topic, message) {
     io.emit('server-note', message.toString());
   }
 
-  if (topic === 'gps') {
-    var gps_data = JSON.parse(message);
-    io.emit('gps', JSON.stringify(gps_data));
-    console.log(topic, gps_data.lat, gps_data.long);
+  if (topic === BOT + '/data/gps/latitude') {
+    current_loc.lat = message.toString('utf8');
+    io.emit('gps', JSON.stringify(current_loc));
+  }
+
+  if (topic === BOT + '/data/gps/longitude') {
+    current_loc.long = message.toString('utf8');
+    io.emit('gps', JSON.stringify(current_loc));
   }
   //client.end();
 });
@@ -100,7 +115,7 @@ io.on('connect', function(socket) {
     socket.on('msg', function(msg) {
         console.log('say', msg);
         //send it to the mqtt broker
-        client.publish('say', msg);
+        client.publish( BOT + '/say', msg);
     });
 
     // if you get a note, send it to the server

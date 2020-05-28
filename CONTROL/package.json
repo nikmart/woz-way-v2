@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/nikmart/woz-way-v2#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.16.2",
     "log-timestamp": "^0.1.2",
     "mqtt": "^2.18.8",
