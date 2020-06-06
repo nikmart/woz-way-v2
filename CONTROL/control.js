@@ -21,6 +21,7 @@ Use the .env file to set your configureations.
 require('dotenv').config() // configurations and passwords
 const DEPLOYMENT = process.env.DEPLOYMENT;
 const BOT = process.env.BOT;
+const DATA = process.env.DATA;
 
 // Webserver for the control interface front end
 var express = require('express'); // web server application
@@ -28,7 +29,7 @@ var http = require('http');				// http basics
 var app = express();							// instantiate express server
 var server = http.Server(app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
-var serverPort = 8080;
+var serverPort = 3000;
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
@@ -69,16 +70,16 @@ client.on('connect', function () {
   client.subscribe('status');
   client.subscribe('heartbeat');
   client.subscribe('sys-note');
-  client.subscribe(`${DEPLOYMENT}/+/data/gps/latitude`);
-  client.subscribe(`${DEPLOYMENT}/+/data/gps/longitude`);
-  client.subscribe(`${DEPLOYMENT}/+/data/gps/bearing`);
-  client.subscribe(`${DEPLOYMENT}/+/data/gps/speed`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/x`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/y`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/z`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/x`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/y`);
-  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/z`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/gps/latitude`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/gps/longitude`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/gps/bearing`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/gps/speed`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Accelerometer/x`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Accelerometer/y`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Accelerometer/z`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Gyroscope/x`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Gyroscope/y`);
+  client.subscribe(`${DEPLOYMENT}/${DATA}/data/Gyroscope/z`);
   console.log("Waiting for messages...");
 });
 
@@ -100,12 +101,12 @@ client.on('message', function (topic, message) {
     io.emit('server-note', message.toString());
   }
 
-  if (topic === `${ DEPLOYMENT }/data/gps/latitude`) {
+  if (topic === `${DEPLOYMENT}/${DATA}/data/gps/latitude`) {
     current_loc.lat = message.toString('utf8');
     io.emit('gps', JSON.stringify(current_loc));
   }
 
-  if (topic === `${DEPLOYMENT }/data/gps/longitude`) {
+  if (topic === `${DEPLOYMENT}/${DATA}/data/gps/longitude`) {
     current_loc.long = message.toString('utf8');
     io.emit('gps', JSON.stringify(current_loc));
   }
