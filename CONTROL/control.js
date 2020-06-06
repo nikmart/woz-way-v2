@@ -19,7 +19,8 @@ Use the .env file to set your configureations.
 
 //****************************** SETUP ***************************************//
 require('dotenv').config() // configurations and passwords
-const BOT = process.env.BOT
+const DEPLOYMENT = process.env.DEPLOYMENT;
+const BOT = process.env.BOT;
 
 // Webserver for the control interface front end
 var express = require('express'); // web server application
@@ -63,22 +64,31 @@ server.listen(serverPort, function() {
 client.on('connect', function () {
   //Subscribe to topics
   // Note: Make sure you are subscribed to the correct topics on the BOT side
+  // Use '+' as a single level wildcard: https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/
   client.subscribe('say');
   client.subscribe('status');
   client.subscribe('heartbeat');
   client.subscribe('sys-note');
-  client.subscribe('djbot-01/data/gps/latitude');
-  client.subscribe('djbot-01/data/gps/longitude');
+  client.subscribe(`${DEPLOYMENT}/+/data/gps/latitude`);
+  client.subscribe(`${DEPLOYMENT}/+/data/gps/longitude`);
+  client.subscribe(`${DEPLOYMENT}/+/data/gps/bearing`);
+  client.subscribe(`${DEPLOYMENT}/+/data/gps/speed`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/x`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/y`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Accelerometer/z`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/x`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/y`);
+  client.subscribe(`${DEPLOYMENT}/+/data/Gyroscope/z`);
   console.log("Waiting for messages...");
 });
 
 // process the MQTT messages
 client.on('message', function (topic, message) {
   // message is Buffer
-  //console.log(topic, message.toString());
+  console.log(topic, message.toString('utf8'));
 
   if (topic === 'status') {
-    console.log(topic, message.toString());
+    console.log(topic, message.toString('utf8'));
   }
 
   if (topic === 'heartbeat') {
@@ -90,12 +100,12 @@ client.on('message', function (topic, message) {
     io.emit('server-note', message.toString());
   }
 
-  if (topic === BOT + '/data/gps/latitude') {
+  if (topic === `${ DEPLOYMENT }/data/gps/latitude`) {
     current_loc.lat = message.toString('utf8');
     io.emit('gps', JSON.stringify(current_loc));
   }
 
-  if (topic === BOT + '/data/gps/longitude') {
+  if (topic === `${DEPLOYMENT }/data/gps/longitude`) {
     current_loc.long = message.toString('utf8');
     io.emit('gps', JSON.stringify(current_loc));
   }
@@ -113,16 +123,16 @@ io.on('connect', function(socket) {
 
     // if you get a message to send, send to the MQTT broker
     socket.on('msg', function(msg) {
-        console.log('say', msg);
         //send it to the mqtt broker
-        client.publish( BOT + '/say', msg);
+        client.publish(`${DEPLOYMENT}/${BOT}/say`, msg);
+        console.log(`${DEPLOYMENT}/${BOT}/say`, msg);
     });
 
     // if you get a note, send it to the server
     socket.on('sys-note', function(msg) {
-      console.log(msg);
       // send if to the mqtt broker
-      client.publish('sys-note', msg);
+      client.publish(`${DEPLOYMENT}/${BOT}/sys-note`, msg);
+      console.log(`${DEPLOYMENT}/sys-note`, `"${msg}"`);
     });
 
     // if you get the 'disconnect' message, say the user disconnected
