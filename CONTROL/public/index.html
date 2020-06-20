@@ -13,11 +13,30 @@
    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
    crossorigin=""></script>
 </head>
+<div class='dropdown'><button type="button" class="collapsible">Connect to Bot</button></div>
+      <div class="content">
+        <form id="bot-selector" >
+          <label for="user">Username</label>
+          <input type="text" name="user"><br>
+          <label for="pass">Password</label>
+          <input type="password" name="pass"><br>
+          <label for="botId">Bot Id</label>
+          <input type="text" name="botId" value="Bot ID">
+          <br>
+          <label for="num_cams">Number of Cameras</label>
+          <input type="number" name="num_cams" min="1">
+          <br>
+          <button id="connect" type="submit">Connect</button><div id='connection-status'></div>
+        </form>
+        
+      </div>
     <div class="map-container">
       <h4>Map</h4>
+
       <div id="map" style="height:400px;width:100%">
       </div>
     </div>
+
 <body>
 <div class="main-container">
     <div class="left-container">

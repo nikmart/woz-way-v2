@@ -24,15 +24,28 @@ var app = express();							// instantiate express server
 var server = http.Server(app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
 var serverPort = 8080;
+// let client = null;
+let bot= null;
+let phones = {};
+
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
-var client = mqtt.connect('mqtt://34.212.144.83',
+
+var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
                            {port: 1883,
                             protocolId: 'MQIsdp',
-                            protocolVersion: 3 });
+                            protocolVersion: 3,
+                            username: 'millionmonkeystyping',
+                            password: 'Shakespeare' });
+
+client.subscribe(`botid/data/#`);
+client.on('message', function (topic, message) {
+  console.log(topic, message.toString())
+})
 //timesatamping
 require('log-timestamp');
+
 //****************************************************************************//
 
 //****************************** WEB INTERFACE *******************************//
@@ -42,46 +55,6 @@ app.use(express.static('public'));		// find pages in public directory
 // start the server and say what port it is on
 server.listen(serverPort, function() {
     console.log('listening on *:%s', serverPort);
-});
-//****************************************************************************//
-
-//********************** MQTT MESSAGES FROM BOT ******************************//
-// Setup the MQTT connection and listen for messages
-client.on('connect', function () {
-  //Subscribe to topics
-  // Note: Make sure you are subscribed to the correct topics on the BOT side
-  client.subscribe('say');
-  client.subscribe('status');
-  client.subscribe('heartbeat');
-  client.subscribe('sys-note');
-  client.subscribe('gps');
-  console.log("Waiting for messages...");
-});
-
-// process the MQTT messages
-client.on('message', function (topic, message) {
-  // message is Buffer
-  //console.log(topic, message.toString());
-
-  if (topic === 'status') {
-    console.log(topic, message.toString());
-  }
-
-  if (topic === 'heartbeat') {
-    //console.log(topic, message.toString());
-    io.emit('server-msg', message.toString());
-  }
-
-  if (topic === 'sys-note') {
-    io.emit('server-note', message.toString());
-  }
-
-  if (topic === 'gps') {
-    var gps_data = JSON.parse(message);
-    io.emit('gps', JSON.stringify(gps_data));
-    console.log(topic, gps_data.lat, gps_data.long);
-  }
-  //client.end();
 });
 //****************************************************************************//
 
@@ -99,6 +72,10 @@ io.on('connect', function(socket) {
         //send it to the mqtt broker
         client.publish('say', msg);
     });
+    socket.on('start', (data)=> {
+      setupMqtt(data)
+
+      console.log(data)})
 
     // if you get a note, send it to the server
     socket.on('sys-note', function(msg) {
@@ -112,4 +89,64 @@ io.on('connect', function(socket) {
         console.log('user disconnected');
     });
 });
+
+function setupMqtt(botData) {
+  const dataRe= new RegExp(`${botData.botId}/.*/data`)
+
+    //********************** MQTT MESSAGES FROM BOT ******************************//
+    var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
+                               {port: 1883,
+                                protocolId: 'MQIsdp',
+                                protocolVersion: 3,
+                                username: botData.username,
+                                password: botData.pass });
+
+    // Setup the MQTT connection and listen for messages
+    client.on('connect', function () {
+
+      //Subscribe to topics
+      // Note: Make sure you are subscribed to the correct topics on the BOT side
+      for (let i = 0; i < botData.cams; i++) {
+        console.log(`${botData.botId}/cam${i}/data/`);
+        client.subscribe(`${botData.botId}/cam${i}/say`);
+        client.subscribe(`${botData.botId}/cam${i}/data/#`);
+        client.publish(`${botData.botId}/cam${i}/start-data`, `start-data-cam${i}`);
+        client.publish(`${botData.botId}/cam${i}/start-video`, `start-video-cam${i}`);
+      }
+      
+      
+      console.log("Waiting for messages...");
+    });
+
+    // process the MQTT messages
+    client.on('message', function (topic, message) {
+      // message is Buffer
+      //console.log(topic, message.toString());
+      if (dataRe.test(topic)){
+        io.emit('data-msg', topic, message.toString())
+      }
+
+      // if (topic === 'status') {
+      //   console.log(topic, message.toString());
+      // }
+
+      // if (topic === 'heartbeat') {
+      //   //console.log(topic, message.toString());
+      //   io.emit('server-msg', message.toString());
+      // }
+
+      if (topic === 'sys-note') {
+        io.emit('server-note', message.toString());
+      }
+
+      // if (topic === 'gps') {
+      //   var gps_data = JSON.parse(message);
+      //   io.emit('gps', JSON.stringify(gps_data));
+      //   console.log(topic, gps_data.lat, gps_data.long);
+      // }
+      //client.end();
+    });
+    //****************************************************************************//
+
+}
 //****************************************************************************//

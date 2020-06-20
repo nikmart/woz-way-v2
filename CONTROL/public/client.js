@@ -9,6 +9,11 @@ var map;
 var mark;
 var current = {lat: 42.992, lng: -78.578};
 var lineCoords=[];
+let connected = false;
+
+function connectToBot(botId) {
+    socket.emit('connect', botId)
+}
 
 // send out sound message over socket
 function play(id) {
@@ -181,36 +186,21 @@ function redraw(location){
   lineCoordinatesPath.setMap(map);
 }
 
-//display location with google maps JS API
+function toggleDiv(div){
+        div.classList.toggle("active");
+    var content = div.parentElement.nextElementSibling;
+    if (content.style.display === "block") {
+        content.style.display = "none";
+    } else {
+        content.style.display = "block";
+    }
+}
 
+const coll = document.getElementsByClassName("collapsible")[0];
+coll.onclick = () => {
+    toggleDiv(coll)
+}
 
-
-// function initMap(){
-//     // var farm ={lat: 42.992, lng: -78.578};
-//     map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
-//     mark= new google.maps.Marker({position:current,
-//         icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
-//     }
-
-// function redraw(location){
-//     map.setCenter({lat:location.lat, lng:location.lng, alt:0});
-//     mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
-
-//     lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
-//     var lineCoordinatesPath = new google.maps.Polyline({
-//         path: lineCoords,
-//         geodesic: true,
-//         strokeColor: '#2E10FF'
-//   });
-//   lineCoordinatesPath.setMap(map);
-// }
-
-// //
-// setInterval(function(){
-//     current.lat= current.lat+(Math.random()-.5)*.005
-//     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current)
-// }, 5000);
 
 
 var map;
@@ -247,26 +237,27 @@ function redraw(location){
 
 // read the data from the message that the server sent and change the
 // background of the webpage based on the data in the message
-socket.on('server-msg', function(msg) {
-    console.log('msg:', msg);
-    switch(msg) {
-        // heartbeat message
-        case 'alive':
-          clearTimeout(heartbeatTimer);
-          if (botStatus != 'alive') {
-            document.getElementById("namestatus").textContent = "Bot 0 - Connected";
-            document.getElementById("namestatus").style.color = '#1DB954';
-            botStatus = 'alive';
-          }
-          heartbeatTimer = setTimeout(function(){
-            botStatus = '';
-            console.log("reset heartbeat");
-            document.getElementById("namestatus").textContent = "Bot 0 - Offline";
-            document.getElementById("namestatus").style.color = "red";
-          }, 7000);
-          break;
-    }
-});
+
+// socket.on('server-msg', function(msg) {
+//     console.log('msg:', msg);
+//     switch(msg) {
+//         // heartbeat message
+//         case 'alive':
+//           clearTimeout(heartbeatTimer);
+//           if (botStatus != 'alive') {
+//             document.getElementById("namestatus").textContent = "Bot 0 - Connected";
+//             document.getElementById("namestatus").style.color = '#1DB954';
+//             botStatus = 'alive';
+//           }
+//           heartbeatTimer = setTimeout(function(){
+//             botStatus = '';
+//             console.log("reset heartbeat");
+//             document.getElementById("namestatus").textContent = "Bot 0 - Offline";
+//             document.getElementById("namestatus").style.color = "red";
+//           }, 7000);
+//           break;
+//     }
+// });
 
 initMap()
 //get notes from other wizards
@@ -279,6 +270,19 @@ socket.on('server-note', function(msg){
   }
 });
 
+socket.on('data-msg', (topic, message) =>{
+    connected = true
+    console.log(topic, message)
+    document.getElementById("namestatus").textContent = "Bot 0 - Connected";
+    document.getElementById("namestatus").style.color = '#1DB954';
+    clearTimeout(heartbeatTimer);
+    heartbeatTimer = setTimeout(() => {
+        console.log('reset timer');
+        document.getElementById("namestatus").textContent = "Bot 0 - Offline";
+        document.getElementById("namestatus").style.color = "red";
+    }, 7000);
+})
+
 // Update GPS coordinates
 socket.on('gps', function(msg){
     var gps_data = JSON.parse(msg);
@@ -287,3 +291,42 @@ socket.on('gps', function(msg){
     current.lng = gps_data.long;
     redraw(current)
 });
+
+
+
+// setup bot
+var form = document.getElementById("bot-selector");
+form.onsubmit = (e) => {
+    e.preventDefault();
+    const status =document.getElementById('connection-status');
+    status.innerText='Connecting'
+    status.classList.add('connecting');
+    const botData = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, cams: form.num_cams.value}
+    socket.emit('start', botData)
+    setTimeout(() => {
+        if(connected) {
+            for (let i = 0; i < botData.cams; i++) {
+                console.log(i)
+            }
+            status.classList.remove('connecting');
+            status.innerText='Connected!'
+            setTimeout(()=>{toggleDiv(coll)}, 1000)
+        } else {
+            status.classList.remove('connecting');
+            status.innerText='Error connecting!'
+        }
+    }, 2000)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
