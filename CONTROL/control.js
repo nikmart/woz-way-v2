@@ -84,6 +84,8 @@ io.on('connect', function(socket) {
       client.publish('sys-note', msg);
     });
 
+    socket.on('mark', (msg) => {console.log(msg)})
+
     // if you get the 'disconnect' message, say the user disconnected
     socket.on('disconnect', function() {
         console.log('user disconnected');

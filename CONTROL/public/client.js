@@ -201,12 +201,19 @@ coll.onclick = () => {
     toggleDiv(coll)
 }
 
+const momentButton = document.getElementById('mark_moment');
+const moment={start: undefined, end: undefined}
+momentButton.onmousedown = () => {moment.start = Date.now()}
+momentButton.onmouseup = () => {
+    moment.end = Date.now();
+    socket.emit('mark', moment);
+    moment.start = undefined;
+    moment.end = undefined;
+
+    }
 
 
-var map;
-var mark;
-var current = {lat: 42.992, lng: -78.578};
-var lineCoords=[];
+
 var path;
 
 function initMap(){
