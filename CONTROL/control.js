@@ -69,8 +69,20 @@ io.on('connect', function(socket) {
     socket.on('phoneTrigger', (cam, action) => {
       switch (action){ 
         case 'switchSay':
-          bot.sayId=cam
+          bot.sayId=cam;
+          break;
+        case 'restartCamera':
+          client.publish(`${bot.botId}/${cam}/restart-camera`, `restart-${cam}`);
+          break;
+        case 'flipCamera':
+          client.publish(`${bot.botId}/${cam}/flip-camera`, `flip-${cam}`);
+          break;
+        case 'reconnectCamera':
+          client.publish(`${bot.botId}/${cam}/start-data`, `start-data-${cam}`);
+          client.publish(`${bot.botId}/${cam}/start-video`, `start-video-${cam}`);
+          break;
       }
+
 
     })
 
