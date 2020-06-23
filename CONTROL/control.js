@@ -24,25 +24,13 @@ var app = express();							// instantiate express server
 var server = http.Server(app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
 var serverPort = 8080;
-// let client = null;
-let bot= null;
-let phones = {};
+let bot;
+let client;
 
 
 // MQTT messaging - specify the server you would like to use here
 var mqtt    = require('mqtt');
 
-var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
-                           {port: 1883,
-                            protocolId: 'MQIsdp',
-                            protocolVersion: 3,
-                            username: 'millionmonkeystyping',
-                            password: 'Shakespeare' });
-
-client.subscribe(`botid/data/#`);
-client.on('message', function (topic, message) {
-  console.log(topic, message.toString())
-})
 //timesatamping
 require('log-timestamp');
 
@@ -68,14 +56,23 @@ io.on('connect', function(socket) {
 
     // if you get a message to send, send to the MQTT broker
     socket.on('msg', function(msg) {
-        console.log('say', msg);
+        console.log(`${bot.botId}/${bot.sayId}/say`, msg);
         //send it to the mqtt broker
-        client.publish('say', msg);
+        client.publish(`${bot.botId}/${bot.sayId}/say`, msg);
     });
     socket.on('start', (data)=> {
       setupMqtt(data)
+      bot=data
 
       console.log(data)})
+
+    socket.on('phoneTrigger', (cam, action) => {
+      switch (action){ 
+        case 'switchSay':
+          bot.sayId=cam
+      }
+
+    })
 
     // if you get a note, send it to the server
     socket.on('sys-note', function(msg) {
@@ -90,13 +87,16 @@ io.on('connect', function(socket) {
     socket.on('disconnect', function() {
         console.log('user disconnected');
     });
+
+
 });
+
 
 function setupMqtt(botData) {
   const dataRe= new RegExp(`${botData.botId}/.*/data`)
 
     //********************** MQTT MESSAGES FROM BOT ******************************//
-    var client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
+    client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
                                {port: 1883,
                                 protocolId: 'MQIsdp',
                                 protocolVersion: 3,
@@ -112,6 +112,9 @@ function setupMqtt(botData) {
         console.log(`${botData.botId}/cam${i}/data/`);
         client.subscribe(`${botData.botId}/cam${i}/say`);
         client.subscribe(`${botData.botId}/cam${i}/data/#`);
+        client.subscribe(`${botData.botId}/cam${i}/start-data`)
+        client.subscribe(`${botData.botId}/cam${i}/start-video`)
+      
         client.publish(`${botData.botId}/cam${i}/start-data`, `start-data-cam${i}`);
         client.publish(`${botData.botId}/cam${i}/start-video`, `start-video-cam${i}`);
       }

@@ -3,7 +3,7 @@ var socket = io();
 var restore = false;
 var queueCount = 0;
 var botStatus = '';
-var heartbeatTimer;
+const timers= {heartbeatTimer: null};
 var wizardName = '';
 var map;
 var mark;
@@ -11,6 +11,7 @@ var current = {lat: 42.992, lng: -78.578};
 var lineCoords=[];
 let connected = false;
 const dataPaths={}
+let bot = null;
 
 function connectToBot(botId) {
     socket.emit('connect', botId)
@@ -208,6 +209,8 @@ momentButton.onmousedown = () => {moment.start = Date.now()}
 momentButton.onmouseup = () => {
     moment.end = Date.now();
     socket.emit('mark', moment);
+    addNote(`${moment.start}-${moment.end}`)
+
     moment.start = undefined;
     moment.end = undefined;
 
@@ -237,35 +240,6 @@ function redraw(lat, lng){
     path.addLatLng([lat, lng])
 }
 
-// setInterval(function(){
-//     current.lat= current.lat+(Math.random()-.5)*.005
-//     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current.lat, current.lng)
-// }, 1000);
-
-// read the data from the message that the server sent and change the
-// background of the webpage based on the data in the message
-
-// socket.on('server-msg', function(msg) {
-//     console.log('msg:', msg);
-//     switch(msg) {
-//         // heartbeat message
-//         case 'alive':
-//           clearTimeout(heartbeatTimer);
-//           if (botStatus != 'alive') {
-//             document.getElementById("namestatus").textContent = "Bot 0 - Connected";
-//             document.getElementById("namestatus").style.color = '#1DB954';
-//             botStatus = 'alive';
-//           }
-//           heartbeatTimer = setTimeout(function(){
-//             botStatus = '';
-//             console.log("reset heartbeat");
-//             document.getElementById("namestatus").textContent = "Bot 0 - Offline";
-//             document.getElementById("namestatus").style.color = "red";
-//           }, 7000);
-//           break;
-//     }
-// });
 
 initMap()
 //get notes from other wizards
@@ -279,9 +253,15 @@ socket.on('server-note', function(msg){
 });
 
 socket.on('data-msg', (topic, message) =>{
-    connected = true
-    console.log(topic, message)
     const topicArray = topic.split('/')
+    if(topicArray[0]===bot.botId){
+    connected = true;
+    // console.log(topic, message)
+    const statusIcon =document.getElementById(`status-${topicArray[1]}`);
+    statusIcon.innerText='🟢'
+    clearTimeout(timers[topicArray[1]]);
+    timers[topicArray[1]]= setTimeout(() => {statusIcon.innerText='🔴'}, 3000)
+
     const topicId =dataPaths[topicArray[1]][topicArray[3]][topicArray[4]]
     if (topicId) {document.getElementById(topicId).innerText=message}
     const lat=parseFloat(document.getElementById(dataPaths[topicArray[1]]['gps']['latitude']).innerText)
@@ -291,23 +271,19 @@ socket.on('data-msg', (topic, message) =>{
     }
     document.getElementById("namestatus").textContent = "Bot 0 - Connected";
     document.getElementById("namestatus").style.color = '#1DB954';
-    clearTimeout(heartbeatTimer);
-    heartbeatTimer = setTimeout(() => {
+    clearTimeout(timers.heartbeatTimer);
+    timers.heartbeatTimer = setTimeout(() => {
         console.log('reset timer');
         document.getElementById("namestatus").textContent = "Bot 0 - Offline";
         document.getElementById("namestatus").style.color = "red";
     }, 7000);
+    }
 })
 
-// Update GPS coordinates
-// socket.on('gps', function(msg){
-//     var gps_data = JSON.parse(msg);
-//     console.log(gps_data);
-//     current.lat = gps_data.lat;
-//     current.lng = gps_data.long;
-//     redraw(current)
-// });
-
+function phoneTrigger(cam, action) {
+    console.log(cam, action)
+    socket.emit('phoneTrigger', cam, action)
+}
 
 
 // setup bot
@@ -315,15 +291,19 @@ socket.on('data-msg', (topic, message) =>{
 
 function addControls(noCams) {
     const camControls=document.getElementById('cam-controls' );
+    camControls.textContent='';
+
     for (let i = 0; i < noCams; i++) {
         console.log(i);
         const item = Object.assign(document.createElement('div'), {className: 'flexitem'})
         
         const dataVals= `
+        <span id="say-cam${i}" class="icons say-icons"></span><span id="status-cam${i}" class="icons">🟡</span><br>
         Accel: X: <span id="accel-x-cam${i}"></span>, Y: <span id="accel-y-cam${i}"></span>, Z: <span id="accel-z-cam${i}"></span><br>
         GPS: (<span id="lat-cam${i}"></span>, <span id="long-cam${i}"></span>)<br>
         Speed: <span id="speed-cam${i}"></span> <br>
-        Battery: <span id="battery-cam${i}">?</span>
+        Battery: <span id="battery-cam${i}">?</span><br>
+
         `
         dataPaths[`cam${i}`]={
             Accelerometer: 
@@ -335,21 +315,34 @@ function addControls(noCams) {
         item.appendChild(data)
         const camButtons = Object.assign(document.createElement('div'), {className: 'cam-buttons'})
         const sayRadio = Object.assign(document.createElement('input'),{type: 'radio', value: `cam${i}`, id: `cam${i}`, name: 'say'})
-        const flipCamera = Object.assign(document.createElement('button'), {innerText: 'flip camera'})
-        const restartCamera = Object.assign(document.createElement('button'), {innerText: 'restart camera'})
-        if (i === 0) { sayRadio.checked = true; }
+        const restartCamera = Object.assign(document.createElement('button'), {innerText: 'restart camera', onclick: () => phoneTrigger(`cam${i}`, 'restartCamera')})
+        const flipCamera = Object.assign(document.createElement('button'), {innerText: 'flip camera', onclick: () => phoneTrigger(`cam${i}`, 'flipCamera')})
+        const reconnect = Object.assign(document.createElement('button'), {innerText: 'reconnect', onclick: () => phoneTrigger(`cam${i}`, 'reconnectCamera')})
+
+        sayRadio.onchange = () => {
+            console.log(sayRadio.value);
+            [...document.getElementsByClassName('say-icons')].forEach((icon) => icon.innerText='')
+            document.getElementById(`say-${sayRadio.value}`).innerText='🎵'
+            phoneTrigger(sayRadio.value, 'switchSay')
+        }
+
+
         const sayLabel = Object.assign(document.createElement('label'), {for: `cam${i}`, innerText: `speak from cam${i}`})
         sayLabel.appendChild(sayRadio)
         camButtons.appendChild(sayLabel)
-        camButtons.appendChild(flipCamera)
         camButtons.appendChild(restartCamera)
+        camButtons.appendChild(reconnect)
+        camButtons.appendChild(flipCamera)
         item.appendChild(camButtons)
-        sayRadio.onchange = () => {console.log(sayRadio.value)}
         camControls.appendChild(item)
+        timers[`cam${i}`]=setTimeout(() => {document.getElementById(`status-cam${i}`).innerText='🔴'}, 3000);
+        if (i === 0) { 
+            sayRadio.checked = true; 
+            document.getElementById(`say-${sayRadio.value}`).innerText='🎵'
+        }
 
     }
 }
-
 
 var form = document.getElementById("bot-selector");
 form.onsubmit = (e) => {
@@ -357,11 +350,11 @@ form.onsubmit = (e) => {
     const status =document.getElementById('connection-status');
     status.innerText='Connecting'
     status.classList.add('connecting');
-    const botData = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, cams: form.num_cams.value}
-    socket.emit('start', botData)
+    bot = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, cams: form.num_cams.value, sayId: 'cam0'}
+    socket.emit('start', bot)
     setTimeout(() => {
         if(connected) {
-            addControls(botData.cams)
+            addControls(bot.cams)
             status.classList.remove('connecting');
             status.innerText='Connected!'
             setTimeout(()=>{toggleDiv(coll)}, 1000)
@@ -372,7 +365,6 @@ form.onsubmit = (e) => {
     }, 2000)
 }
 
-addControls(3)
 
 
 
