@@ -10,6 +10,7 @@ var mark;
 var current = {lat: 42.992, lng: -78.578};
 var lineCoords=[];
 let connected = false;
+const dataPaths={}
 
 function connectToBot(botId) {
     socket.emit('connect', botId)
@@ -166,25 +167,25 @@ function clearQuestion(msgID) {
 }
 
 //display location with google maps JS API
-function initMap(){
-    // var farm ={lat: 42.992, lng: -78.578};
-    map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
-    mark= new google.maps.Marker({position:current,
-        icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
-    }
+// function initMap(){
+//     // var farm ={lat: 42.992, lng: -78.578};
+//     map = new google.maps.Map(document.getElementById('map'), {zoom: 14, center: current});
+//     mark= new google.maps.Marker({position:current,
+//         icon: {path:google.maps.SymbolPath.CIRCLE, scale: 3}, map: map})
+//     }
 
-function redraw(location){
-    map.setCenter({lat:location.lat, lng:location.lng, alt:0});
-    mark.setPosition({lat:location.lat, lng:location.lng, alt:0});
+// function redraw(lat, lng){
+//     map.setCenter({lat:lat, lng:lng, alt:0});
+//     mark.setPosition({lat:lat, lng:lng, alt:0});
 
-    lineCoords.push(new google.maps.LatLng(location.lat, location.lng));
-    var lineCoordinatesPath = new google.maps.Polyline({
-        path: lineCoords,
-        geodesic: true,
-        strokeColor: '#2E10FF'
-  });
-  lineCoordinatesPath.setMap(map);
-}
+//     lineCoords.push(new google.maps.LatLng(lat, lng));
+//     var lineCoordinatesPath = new google.maps.Polyline({
+//         path: lineCoords,
+//         geodesic: true,
+//         strokeColor: '#2E10FF'
+//   });
+//   lineCoordinatesPath.setMap(map);
+// }
 
 function toggleDiv(div){
         div.classList.toggle("active");
@@ -230,16 +231,16 @@ function initMap(){
     path= L.polyline(lineCoords, {color: 'blue'}).addTo(map)
 }
 
-function redraw(location){
-    map.panTo([location.lat, location.lng])
-    mark.setLatLng([location.lat, location.lng])
-    path.addLatLng([location.lat, location.lng])
+function redraw(lat, lng){
+    map.panTo([lat, lng])
+    mark.setLatLng([lat, lng])
+    path.addLatLng([lat, lng])
 }
 
 // setInterval(function(){
 //     current.lat= current.lat+(Math.random()-.5)*.005
 //     current.lng= current.lng+(Math.random()-.5)*.005
-//     redraw(current)
+//     redraw(current.lat, current.lng)
 // }, 1000);
 
 // read the data from the message that the server sent and change the
@@ -280,6 +281,14 @@ socket.on('server-note', function(msg){
 socket.on('data-msg', (topic, message) =>{
     connected = true
     console.log(topic, message)
+    const topicArray = topic.split('/')
+    const topicId =dataPaths[topicArray[1]][topicArray[3]][topicArray[4]]
+    if (topicId) {document.getElementById(topicId).innerText=message}
+    const lat=parseFloat(document.getElementById(dataPaths[topicArray[1]]['gps']['latitude']).innerText)
+    const lng=parseFloat(document.getElementById(dataPaths[topicArray[1]]['gps']['longitude']).innerText)
+    if (topic.includes('gps')) {
+        redraw(lat, lng)
+    }
     document.getElementById("namestatus").textContent = "Bot 0 - Connected";
     document.getElementById("namestatus").style.color = '#1DB954';
     clearTimeout(heartbeatTimer);
@@ -291,17 +300,57 @@ socket.on('data-msg', (topic, message) =>{
 })
 
 // Update GPS coordinates
-socket.on('gps', function(msg){
-    var gps_data = JSON.parse(msg);
-    console.log(gps_data);
-    current.lat = gps_data.lat;
-    current.lng = gps_data.long;
-    redraw(current)
-});
+// socket.on('gps', function(msg){
+//     var gps_data = JSON.parse(msg);
+//     console.log(gps_data);
+//     current.lat = gps_data.lat;
+//     current.lng = gps_data.long;
+//     redraw(current)
+// });
 
 
 
 // setup bot
+
+
+function addControls(noCams) {
+    const camControls=document.getElementById('cam-controls' );
+    for (let i = 0; i < noCams; i++) {
+        console.log(i);
+        const item = Object.assign(document.createElement('div'), {className: 'flexitem'})
+        
+        const dataVals= `
+        Accel: X: <span id="accel-x-cam${i}"></span>, Y: <span id="accel-y-cam${i}"></span>, Z: <span id="accel-z-cam${i}"></span><br>
+        GPS: (<span id="lat-cam${i}"></span>, <span id="long-cam${i}"></span>)<br>
+        Speed: <span id="speed-cam${i}"></span> <br>
+        Battery: <span id="battery-cam${i}">?</span>
+        `
+        dataPaths[`cam${i}`]={
+            Accelerometer: 
+                {x: `accel-x-cam${i}`,y: `accel-y-cam${i}`, z: `accel-z-cam${i}`}, 
+            gps: {latitude: `lat-cam${i}`, longitude: `long-cam${i}`, speed: `speed-cam${i}`},
+            battery: {percentage: `battery-cam${i}`},
+        }
+        const data = Object.assign(document.createElement('div'), {className: 'data', innerHTML: dataVals})
+        item.appendChild(data)
+        const camButtons = Object.assign(document.createElement('div'), {className: 'cam-buttons'})
+        const sayRadio = Object.assign(document.createElement('input'),{type: 'radio', value: `cam${i}`, id: `cam${i}`, name: 'say'})
+        const flipCamera = Object.assign(document.createElement('button'), {innerText: 'flip camera'})
+        const restartCamera = Object.assign(document.createElement('button'), {innerText: 'restart camera'})
+        if (i === 0) { sayRadio.checked = true; }
+        const sayLabel = Object.assign(document.createElement('label'), {for: `cam${i}`, innerText: `speak from cam${i}`})
+        sayLabel.appendChild(sayRadio)
+        camButtons.appendChild(sayLabel)
+        camButtons.appendChild(flipCamera)
+        camButtons.appendChild(restartCamera)
+        item.appendChild(camButtons)
+        sayRadio.onchange = () => {console.log(sayRadio.value)}
+        camControls.appendChild(item)
+
+    }
+}
+
+
 var form = document.getElementById("bot-selector");
 form.onsubmit = (e) => {
     e.preventDefault();
@@ -312,9 +361,7 @@ form.onsubmit = (e) => {
     socket.emit('start', botData)
     setTimeout(() => {
         if(connected) {
-            for (let i = 0; i < botData.cams; i++) {
-                console.log(i)
-            }
+            addControls(botData.cams)
             status.classList.remove('connecting');
             status.innerText='Connected!'
             setTimeout(()=>{toggleDiv(coll)}, 1000)
@@ -325,9 +372,7 @@ form.onsubmit = (e) => {
     }, 2000)
 }
 
-
-
-
+addControls(3)
 
 
 
