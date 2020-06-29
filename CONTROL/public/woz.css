@@ -300,7 +300,7 @@ h1, h2, h3, h4, h5 {
   background-color: #eee;
   color: #444;
   cursor: pointer;
-  padding: 18px;
+  padding: 7px;
   /*width: 50%;*/
   border: none;
   text-align: left;
@@ -322,7 +322,7 @@ h1, h2, h3, h4, h5 {
   /*width:50%;*/
   position: absolute;
   z-index: 100000;
-     top:55px;
+     top:32px;
    right:0;
 }
 .content.text{

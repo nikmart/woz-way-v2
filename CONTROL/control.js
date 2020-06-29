@@ -108,7 +108,7 @@ function setupMqtt(botData) {
   const dataRe= new RegExp(`${botData.botId}/.*/data`)
 
     //********************** MQTT MESSAGES FROM BOT ******************************//
-    client = mqtt.connect('mqtt://mqtt.needfindingmachine.com',
+    client = mqtt.connect('mqtt://farlab.infosci.cornell.edu',
                                {port: 1883,
                                 protocolId: 'MQIsdp',
                                 protocolVersion: 3,

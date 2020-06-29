@@ -3,7 +3,7 @@ var socket = io();
 var restore = false;
 var queueCount = 0;
 var botStatus = '';
-const timers= {heartbeatTimer: null};
+const timers= {};
 var wizardName = '';
 var map;
 var mark;
@@ -269,14 +269,14 @@ socket.on('data-msg', (topic, message) =>{
     if (topic.includes('gps')) {
         redraw(lat, lng)
     }
-    document.getElementById("namestatus").textContent = "Bot 0 - Connected";
-    document.getElementById("namestatus").style.color = '#1DB954';
-    clearTimeout(timers.heartbeatTimer);
-    timers.heartbeatTimer = setTimeout(() => {
-        console.log('reset timer');
-        document.getElementById("namestatus").textContent = "Bot 0 - Offline";
-        document.getElementById("namestatus").style.color = "red";
-    }, 7000);
+    // document.getElementById("namestatus").textContent = "Bot 0 - Connected";
+    // document.getElementById("namestatus").style.color = '#1DB954';
+    // clearTimeout(timers.heartbeatTimer);
+    // timers.heartbeatTimer = setTimeout(() => {
+    //     console.log('reset timer');
+    //     document.getElementById("namestatus").textContent = "Bot 0 - Offline";
+    //     document.getElementById("namestatus").style.color = "red";
+    // }, 7000);
     }
 })
 
@@ -351,6 +351,7 @@ form.onsubmit = (e) => {
     status.innerText='Connecting'
     status.classList.add('connecting');
     bot = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, cams: form.num_cams.value, sayId: 'cam0'}
+    console.log(bot)
     socket.emit('start', bot)
     setTimeout(() => {
         if(connected) {
