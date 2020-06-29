@@ -30,7 +30,7 @@ div {
   justify-content: center;
   top: 0;
   width: 100%;
-  border: 1px solid red;
+ /* border: 1px solid red;*/
 }
 .main-container {
     justify-content: center;
