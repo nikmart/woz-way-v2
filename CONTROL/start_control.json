@@ -1,10 +1,20 @@
-{
+[{
     "uid": "bot",
     "append": true,
     "watch": false,
     "script": "control.js",
-    "sourceDir": "/home/nik/GitRepos/woz-way-v2/CONTROL/",
-    "logFile": "/home/nik/GitRepos/woz-way-v2/CONTROL/logs/forever.log",
-    "outFile": "/home/nik/GitRepos/woz-way-v2/CONTROL/logs/out.log",
-    "errFile": "/home/nik/GitRepos/woz-way-v2/CONTROL/logs/error.log"
-}
+    "sourceDir": "/home/farlab/woz-way-v2/CONTROL/",
+    "logFile": "/home/farlab/woz-way-v2/CONTROL/logs/forever.log",
+    "outFile": "/home/farlab/woz-way-v2/CONTROL/logs/out.log",
+    "errFile": "/home/farlab/woz-way-v2/CONTROL/logs/error.log"
+},
+{
+    "uid": "mqttlog",
+    "append": true,
+    "watch": false,
+    "script": "mqttLogger.js",
+    "sourceDir": "/home/farlab/woz-way-v2/CONTROL/",
+    "logFile": "/home/farlab/woz-way-v2/CONTROL/logs/forever.log",
+    "outFile": "/home/farlab/woz-way-v2/CONTROL/logs/out.log",
+    "errFile": "/home/farlab/woz-way-v2/CONTROL/logs/error.log"
+}]

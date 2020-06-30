@@ -23,7 +23,7 @@ var http = require('http');				// http basics
 var app = express();							// instantiate express server
 var server = http.Server(app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
-var serverPort = 8080;
+var serverPort = 80;
 let bot;
 let client;
 
@@ -93,12 +93,21 @@ io.on('connect', function(socket) {
       client.publish('sys-note', msg);
     });
 
-    socket.on('mark', (msg) => {console.log(msg)})
+    socket.on('mark', (msg) => {
+      console.log(msg);
+      client.publish('sys-note', msg);
+    })
 
     // if you get the 'disconnect' message, say the user disconnected
     socket.on('disconnect', function() {
         console.log('user disconnected');
     });
+
+    socket.on('disconnectBot', (msg) => {
+      console.log(`end session ${msg}`)
+      client.publish(`${msg}/session`, `end session ${msg}`);
+      client.end()
+    })
 
 
 });
@@ -117,6 +126,8 @@ function setupMqtt(botData) {
 
     // Setup the MQTT connection and listen for messages
     client.on('connect', function () {
+      console.log(`start session ${botData.botId}`)
+      client.publish(`${botData.botId}/session`, `start session ${botData.botId}`);
 
       //Subscribe to topics
       // Note: Make sure you are subscribed to the correct topics on the BOT side
@@ -126,7 +137,8 @@ function setupMqtt(botData) {
         client.subscribe(`${botData.botId}/cam${i}/data/#`);
         client.subscribe(`${botData.botId}/cam${i}/start-data`)
         client.subscribe(`${botData.botId}/cam${i}/start-video`)
-      
+        
+        
         client.publish(`${botData.botId}/cam${i}/start-data`, `start-data-cam${i}`);
         client.publish(`${botData.botId}/cam${i}/start-video`, `start-video-cam${i}`);
       }

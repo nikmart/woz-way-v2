@@ -293,6 +293,7 @@ function addControls(noCams) {
     const camControls=document.getElementById('cam-controls' );
     camControls.textContent='';
 
+
     for (let i = 0; i < noCams; i++) {
         console.log(i);
         const item = Object.assign(document.createElement('div'), {className: 'flexitem'})
@@ -345,6 +346,12 @@ function addControls(noCams) {
 }
 
 var form = document.getElementById("bot-selector");
+const disconnect = document.getElementById('disconnect')
+disconnect.onclick = () => {
+    socket.emit('disconnectBot', bot.botId);
+    document.getElementById('connection-status').innerText='disconnected!';
+}
+
 form.onsubmit = (e) => {
     e.preventDefault();
     const status =document.getElementById('connection-status');
@@ -358,6 +365,7 @@ form.onsubmit = (e) => {
             addControls(bot.cams)
             status.classList.remove('connecting');
             status.innerText='Connected!'
+            disconnect.style.visibility='visible'
             setTimeout(()=>{toggleDiv(coll)}, 1000)
         } else {
             status.classList.remove('connecting');
