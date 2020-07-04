@@ -20,20 +20,23 @@
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
 </head>
 
 <div class="main-container">
   <div class="map-container">
-    <h4>Map</h4>
     <div id="mapid" style="height:400px;width:100%">
     </div>
   </div>
   
-  <!--
+  
   <div class="data-container">
-    <div id="data" style="height:430px;"></div>
+    <div id="vis" style="height:400px;"></div>
   </div>
-  -->
+ 
 </div>
 
 
@@ -101,8 +104,6 @@
 </body>
 
 <script src="client.js"></script>
-<!--
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
 <script src="data_plotter.js"></script>
--->
+
 </html>

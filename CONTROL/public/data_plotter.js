@@ -1,32 +1,30 @@
 var socket = io();
 
-function setup() {
-  let width = 500;
-  let height = 430;
-  var canvas = createCanvas(width, height);
-  canvas.parent('data');
-}
+var data = [
+]
 
-function draw() {
-    background(245, 245, 245);
-    drawAxes();
-}
+var vlSpec = {
+  $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+  width: "container",
+  height: "container",
+  data: { name: 'table' },
+  mark: 'line',
+  encoding: {
+    x: { timeunit: "utcminutesseconds", field: 'time', type: 'temporal'},
+    y: { field: 'value', type: 'quantitative' },
+    "color": { "field": "sensor", "type": "nominal" }
+  }
+};
 
-function drawAxes() {
-  let length = width/2 - 20;
-  stroke(175)
-
-  // Speed
-  line(20, 100, width-20, 100);
-  // Accel
-  line(20, height-150, length, height-150);
-  line((height-150)/2-10, height-150-75, (height-150)/2-10, (height-150)/2-10+length);
-  
-  // Gyro
-  line(250, height-150, width-20, height-150);
-  line(width-20-(length/2), height-150-75, width-20-(length/2), (height-150)/2-10+length);
-}
-
-socket.on('server-msg', function (msg) {
-    console.log('msg:', msg);
-});
+vegaEmbed('#vis', vlSpec, { defaultStyle: true })
+  .then(function (result) {
+    const view = result.view;
+    
+    // Update accel coordinates
+    socket.on('data', function (msg) {
+      // Use the Vega view api to insert data
+      //console.log(msg);
+      view.insert("table", JSON.parse(msg)).run();
+    });
+  })
+  .catch(console.warn);

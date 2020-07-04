@@ -48,6 +48,12 @@ var current_loc = {
   lat: 40.4433,
   long: -79.9459
 };
+
+var data = {
+  time: new Date(),
+  sensor: "accel_x",
+  value: 0
+}
 //****************************************************************************//
 
 //****************************** WEB INTERFACE *******************************//
@@ -86,7 +92,7 @@ client.on('connect', function () {
 // process the MQTT messages
 client.on('message', function (topic, message) {
   // message is Buffer
-  console.log(topic, message.toString('utf8'));
+  //console.log(topic, message.toString('utf8'));
 
   if (topic === 'status') {
     console.log(topic, message.toString('utf8'));
@@ -109,6 +115,20 @@ client.on('message', function (topic, message) {
   if (topic === `${DEPLOYMENT}/${DATA}/data/gps/longitude`) {
     current_loc.long = message.toString('utf8');
     io.emit('gps', JSON.stringify(current_loc));
+  }
+
+  if (topic === `${DEPLOYMENT}/${DATA}/data/Accelerometer/z`) {
+    data.time = new Date();
+    data.sensor = "accel_z"
+    data.value = message.toString('utf8');
+    io.emit('data', JSON.stringify(data)); 
+  }
+
+  if (topic === `${DEPLOYMENT}/${DATA}/data/Gyroscope/x`) {
+    data.time = new Date();
+    data.sensor = "gyro_x"
+    data.value = message.toString('utf8');
+    io.emit('data', JSON.stringify(data));
   }
   //client.end();
 });

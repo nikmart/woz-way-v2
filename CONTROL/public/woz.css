@@ -27,9 +27,9 @@ div {
 }
 .map-container{
   /*position: fixed;*/
-  justify-content: center;
+  justify-content: left;
   top: 0;
-  width: 100%;
+  width: 50%;
  /* border: 1px solid red;*/
 }
 .main-container {
@@ -62,7 +62,10 @@ div {
   max-width: 50%;
   flex-wrap: wrap;
   align-items: flex-start;
-  border: 1px solid red;
+  /* border: 1px solid red; */
+}
+#vis{
+  flex: 0 0 100%;
 }
 .note-container{
   flex: 0 1 30%;

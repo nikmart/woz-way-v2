@@ -230,7 +230,7 @@ socket.on('server-note', function(msg){
 // Update GPS coordinates
 socket.on('gps', function(msg){
     var gps_data = JSON.parse(msg);
-    console.log(gps_data);
+    //console.log(gps_data);
     current_loc.lat = gps_data.lat;
     current_loc.long = gps_data.long;
     update_loc(current_loc);
