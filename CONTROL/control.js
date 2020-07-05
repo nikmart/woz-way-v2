@@ -66,20 +66,24 @@ io.on('connect', function(socket) {
 
       console.log(data)})
 
-    socket.on('phoneTrigger', (cam, action) => {
+    socket.on('phoneTrigger', (phone, action) => {
+      console.log('trigger', phone, action )
       switch (action){ 
         case 'switchSay':
-          bot.sayId=cam;
+          bot.sayId=phone;
           break;
-        case 'restartCamera':
-          client.publish(`${bot.botId}/${cam}/restart-camera`, `restart-${cam}`);
+        case 'restart-phone':
+          console.log(`restarting ${phone}`)
+          client.publish(`${bot.botId}/${phone}/system`, `restart`);
           break;
-        case 'flipCamera':
-          client.publish(`${bot.botId}/${cam}/flip-camera`, `flip-${cam}`);
+        case 'flip-camera':
+          console.log(`flipping ${phone}`)
+          client.publish(`${bot.botId}/${phone}/zoom`, `flip-camera`);
           break;
-        case 'reconnectCamera':
-          client.publish(`${bot.botId}/${cam}/start-data`, `start-data-${cam}`);
-          client.publish(`${bot.botId}/${cam}/start-video`, `start-video-${cam}`);
+        case 'reconnect-phone':
+          console.log(`reconnecting ${phone}`)
+          client.publish(`${bot.botId}/${phone}/sensornode`, `sensornode-${phone}`);
+          client.publish(`${bot.botId}/${phone}/zoom`, `https://cornell.zoom.us/my/imandel?pwd=bzJ6VjZnaStkc0lKcVkwTm5wWTdpUT09`);
           break;
       }
 
@@ -131,16 +135,16 @@ function setupMqtt(botData) {
 
       //Subscribe to topics
       // Note: Make sure you are subscribed to the correct topics on the BOT side
-      for (let i = 0; i < botData.cams; i++) {
-        console.log(`${botData.botId}/cam${i}/data/`);
-        client.subscribe(`${botData.botId}/cam${i}/say`);
-        client.subscribe(`${botData.botId}/cam${i}/data/#`);
-        client.subscribe(`${botData.botId}/cam${i}/start-data`)
-        client.subscribe(`${botData.botId}/cam${i}/start-video`)
+      for (let i = 0; i < botData.phones; i++) {
+        console.log(`${botData.botId}/phone${i}/data/`);
+        client.subscribe(`${botData.botId}/phone${i}/say`);
+        client.subscribe(`${botData.botId}/phone${i}/data/#`);
+        client.subscribe(`${botData.botId}/phone${i}/sensornode`)
+        client.subscribe(`${botData.botId}/phone${i}/zoom`)
         
         
-        client.publish(`${botData.botId}/cam${i}/start-data`, `start-data-cam${i}`);
-        client.publish(`${botData.botId}/cam${i}/start-video`, `start-video-cam${i}`);
+        client.publish(`${botData.botId}/phone${i}/sensornode`, `start-data`);
+        // client.publish(`${botData.botId}/phone${i}/zoom`, `https://cornell.zoom.us/my/imandel?pwd=bzJ6VjZnaStkc0lKcVkwTm5wWTdpUT09`);
       }
       
       
@@ -149,31 +153,23 @@ function setupMqtt(botData) {
 
     // process the MQTT messages
     client.on('message', function (topic, message) {
-      // message is Buffer
-      //console.log(topic, message.toString());
+
       if (dataRe.test(topic)){
         io.emit('data-msg', topic, message.toString())
       }
 
-      // if (topic === 'status') {
-      //   console.log(topic, message.toString());
-      // }
-
-      // if (topic === 'heartbeat') {
-      //   //console.log(topic, message.toString());
-      //   io.emit('server-msg', message.toString());
-      // }
-
       if (topic === 'sys-note') {
         io.emit('server-note', message.toString());
       }
+      // if (new RegExp(`${botData.botId}/.*/sensornode`).test(topic) && message.toString()== 'data-streaming'){
+      if (new RegExp(`${botData.botId}/.*/sensornode`).test(topic) && message.toString()== 'data-streaming'){
 
-      // if (topic === 'gps') {
-      //   var gps_data = JSON.parse(message);
-      //   io.emit('gps', JSON.stringify(gps_data));
-      //   console.log(topic, gps_data.lat, gps_data.long);
-      // }
-      //client.end();
+        const phone = topic.split('/')[1]
+        console.log(`starting zoom ${phone}`)
+        client.publish(`${botData.botId}/${phone}/zoom`, botData.zoomlink);
+      }
+
+
     });
     //****************************************************************************//
 

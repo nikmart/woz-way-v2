@@ -21,11 +21,12 @@
           <label for="pass">Password</label>
           <input type="password" name="pass"><br>
           <label for="botId">Bot Id</label>
-          <input type="text" name="botId" value="Bot ID">
-          <br>
-          <label for="num_cams">Number of Cameras</label>
-          <input type="number" name="num_cams" min="1">
-          <br>
+          <input type="text" name="botId" value="Bot ID"><br>
+          <label for="num_phones">Number of phones</label>
+          <input type="number" name="num_phones" min="1"><br>
+          <label for="zoomlink">Zoom URL:</label>
+          <input type="url" id="zoomlink" name="zoomlink" placeholder="zoom link"><br>
+
           <button id="connect" type="submit">Connect</button><div id='connection-status'></div>
         </form>
         <button id="disconnect">Disconnect</button>
@@ -37,7 +38,7 @@
     </div>
 
 <body>
-<div id='cam-controls' class="flex-container">
+<div id='phone-controls' class="flex-container">
 </div>
 </div>
 <div class="main-container">

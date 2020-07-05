@@ -280,66 +280,66 @@ socket.on('data-msg', (topic, message) =>{
     }
 })
 
-function phoneTrigger(cam, action) {
-    console.log(cam, action)
-    socket.emit('phoneTrigger', cam, action)
+function phoneTrigger(phone, action) {
+    console.log(phone, action)
+    socket.emit('phoneTrigger', phone, action)
 }
 
 
 // setup bot
 
 
-function addControls(noCams) {
-    const camControls=document.getElementById('cam-controls' );
-    camControls.textContent='';
+function addControls(nophones) {
+    const phoneControls=document.getElementById('phone-controls' );
+    phoneControls.textContent='';
 
 
-    for (let i = 0; i < noCams; i++) {
+    for (let i = 0; i < nophones; i++) {
         console.log(i);
         const item = Object.assign(document.createElement('div'), {className: 'flexitem'})
         
         const dataVals= `
-        <span id="say-cam${i}" class="icons say-icons"></span><span id="status-cam${i}" class="icons">🟡</span><br>
-        Accel: X: <span id="accel-x-cam${i}"></span>, Y: <span id="accel-y-cam${i}"></span>, Z: <span id="accel-z-cam${i}"></span><br>
-        GPS: (<span id="lat-cam${i}"></span>, <span id="long-cam${i}"></span>)<br>
-        Speed: <span id="speed-cam${i}"></span> <br>
-        Battery: <span id="battery-cam${i}">?</span><br>
+        <span id="say-phone${i}" class="icons say-icons"></span><span id="status-phone${i}" class="icons">🟡</span><br>
+        Accel: X: <span id="accel-x-phone${i}"></span>, Y: <span id="accel-y-phone${i}"></span>, Z: <span id="accel-z-phone${i}"></span><br>
+        GPS: (<span id="lat-phone${i}"></span>, <span id="long-phone${i}"></span>)<br>
+        Speed: <span id="speed-phone${i}"></span> <br>
+        Battery: <span id="battery-phone${i}">?</span><br>
 
         `
-        dataPaths[`cam${i}`]={
+        dataPaths[`phone${i}`]={
             Accelerometer: 
-                {x: `accel-x-cam${i}`,y: `accel-y-cam${i}`, z: `accel-z-cam${i}`}, 
-            gps: {latitude: `lat-cam${i}`, longitude: `long-cam${i}`, speed: `speed-cam${i}`},
-            battery: {percentage: `battery-cam${i}`},
+                {x: `accel-x-phone${i}`,y: `accel-y-phone${i}`, z: `accel-z-phone${i}`}, 
+            gps: {latitude: `lat-phone${i}`, longitude: `long-phone${i}`, speed: `speed-phone${i}`},
+            battery: {percentage: `battery-phone${i}`},
         }
         const data = Object.assign(document.createElement('div'), {className: 'data', innerHTML: dataVals})
         item.appendChild(data)
-        const camButtons = Object.assign(document.createElement('div'), {className: 'cam-buttons'})
-        const sayRadio = Object.assign(document.createElement('input'),{type: 'radio', value: `cam${i}`, id: `cam${i}`, name: 'say'})
-        const restartCamera = Object.assign(document.createElement('button'), {innerText: 'restart camera', onclick: () => phoneTrigger(`cam${i}`, 'restartCamera')})
-        const flipCamera = Object.assign(document.createElement('button'), {innerText: 'flip camera', onclick: () => phoneTrigger(`cam${i}`, 'flipCamera')})
-        const reconnect = Object.assign(document.createElement('button'), {innerText: 'reconnect', onclick: () => phoneTrigger(`cam${i}`, 'reconnectCamera')})
+        const phoneButtons = Object.assign(document.createElement('div'), {className: 'phone-buttons'})
+        const sayRadio = Object.assign(document.createElement('input'),{type: 'radio', value: `phone${i}`, id: `phone${i}`, name: 'say'})
+        const restartphone = Object.assign(document.createElement('button'), {innerText: 'restart phone', onclick: () => phoneTrigger(`phone${i}`, 'restart-phone')})
+        const flipcamera = Object.assign(document.createElement('button'), {innerText: 'flip camera', onclick: () => phoneTrigger(`phone${i}`, 'flip-camera')})
+        const reconnect = Object.assign(document.createElement('button'), {innerText: 'reconnect', onclick: () => phoneTrigger(`phone${i}`, 'reconnect-phone')})
 
         sayRadio.onchange = () => {
             console.log(sayRadio.value);
             [...document.getElementsByClassName('say-icons')].forEach((icon) => icon.innerText='')
-            document.getElementById(`say-${sayRadio.value}`).innerText='🎵'
+            document.getElementById(`say-${sayRadio.value}`).innerText='💬'
             phoneTrigger(sayRadio.value, 'switchSay')
         }
 
 
-        const sayLabel = Object.assign(document.createElement('label'), {for: `cam${i}`, innerText: `speak from cam${i}`})
+        const sayLabel = Object.assign(document.createElement('label'), {for: `phone${i}`, innerText: `speak from phone${i}`})
         sayLabel.appendChild(sayRadio)
-        camButtons.appendChild(sayLabel)
-        camButtons.appendChild(restartCamera)
-        camButtons.appendChild(reconnect)
-        camButtons.appendChild(flipCamera)
-        item.appendChild(camButtons)
-        camControls.appendChild(item)
-        timers[`cam${i}`]=setTimeout(() => {document.getElementById(`status-cam${i}`).innerText='🔴'}, 3000);
+        phoneButtons.appendChild(sayLabel)
+        phoneButtons.appendChild(restartphone)
+        phoneButtons.appendChild(reconnect)
+        phoneButtons.appendChild(flipcamera)
+        item.appendChild(phoneButtons)
+        phoneControls.appendChild(item)
+        timers[`phone${i}`]=setTimeout(() => {document.getElementById(`status-phone${i}`).innerText='🔴'}, 3000);
         if (i === 0) { 
             sayRadio.checked = true; 
-            document.getElementById(`say-${sayRadio.value}`).innerText='🎵'
+            document.getElementById(`say-${sayRadio.value}`).innerText='💬'
         }
 
     }
@@ -357,12 +357,12 @@ form.onsubmit = (e) => {
     const status =document.getElementById('connection-status');
     status.innerText='Connecting'
     status.classList.add('connecting');
-    bot = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, cams: form.num_cams.value, sayId: 'cam0'}
+    bot = {username: form.user.value, pass: form.pass.value, botId: form.botId.value, phones: form.num_phones.value, sayId: 'phone0', zoomlink: form.zoomlink.value}
     console.log(bot)
     socket.emit('start', bot)
     setTimeout(() => {
         if(connected) {
-            addControls(bot.cams)
+            addControls(bot.phones)
             status.classList.remove('connecting');
             status.innerText='Connected!'
             disconnect.style.visibility='visible'
@@ -371,7 +371,7 @@ form.onsubmit = (e) => {
             status.classList.remove('connecting');
             status.innerText='Error connecting!'
         }
-    }, 2000)
+    }, 15000)
 }
 
 
