@@ -285,6 +285,16 @@ function phoneTrigger(phone, action) {
     socket.emit('phoneTrigger', phone, action)
 }
 
+function audioToggle(button, phone) {
+    if(button.innerText==='mute'){
+        phoneTrigger(phone, 'unmute');
+        button.innerText='unmute';
+    } else {
+        phoneTrigger(phone, 'mute');
+        button.innerText='mute';
+    }
+    
+}
 
 // setup bot
 
@@ -319,6 +329,11 @@ function addControls(nophones) {
         const restartphone = Object.assign(document.createElement('button'), {innerText: 'restart phone', onclick: () => phoneTrigger(`phone${i}`, 'restart-phone')})
         const flipcamera = Object.assign(document.createElement('button'), {innerText: 'flip camera', onclick: () => phoneTrigger(`phone${i}`, 'flip-camera')})
         const reconnect = Object.assign(document.createElement('button'), {innerText: 'reconnect', onclick: () => phoneTrigger(`phone${i}`, 'reconnect-phone')})
+        let audio = Object.assign(document.createElement('button'), {innerText: 'join audio', onclick: function() {
+            phoneTrigger(`phone${i}`, 'join-audio');
+            this.innerText='mute';
+            this.onclick= () => audioToggle(this, `phone${i}`)
+            }})
 
         sayRadio.onchange = () => {
             console.log(sayRadio.value);
@@ -334,13 +349,15 @@ function addControls(nophones) {
         phoneButtons.appendChild(restartphone)
         phoneButtons.appendChild(reconnect)
         phoneButtons.appendChild(flipcamera)
-        item.appendChild(phoneButtons)
         phoneControls.appendChild(item)
         timers[`phone${i}`]=setTimeout(() => {document.getElementById(`status-phone${i}`).innerText='🔴'}, 3000);
         if (i === 0) { 
             sayRadio.checked = true; 
             document.getElementById(`say-${sayRadio.value}`).innerText='💬'
+            audio = Object.assign(document.createElement('button'), {innerText: 'mute', onclick: function(){audioToggle(this, 'phone0')}})
         }
+        phoneButtons.appendChild(audio)
+        item.appendChild(phoneButtons)
 
     }
 }

@@ -80,6 +80,18 @@ io.on('connect', function(socket) {
           console.log(`flipping ${phone}`)
           client.publish(`${bot.botId}/${phone}/zoom`, `flip-camera`);
           break;
+        case 'mute':
+          console.log(`muting ${phone}`)
+          client.publish(`${bot.botId}/${phone}/zoom`, `mute`);
+          break;
+        case 'unmute':
+          console.log(`unmuting ${phone}`)
+          client.publish(`${bot.botId}/${phone}/zoom`, `unmute`);
+          break;
+        case 'join-audio':
+          console.log(`joining audio ${phone}`)
+          client.publish(`${bot.botId}/${phone}/zoom`, `join-audio`);
+          break;
         case 'reconnect-phone':
           console.log(`reconnecting ${phone}`)
           client.publish(`${bot.botId}/${phone}/sensornode`, `sensornode-${phone}`);
