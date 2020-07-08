@@ -1,5 +1,5 @@
 /*
-control.js - CONTOL INTERFACE
+control.js - CONTROL INTERFACE
 
 Author: Nikolas Martelaro (nmartelaro@gmail.com)
 
@@ -19,20 +19,18 @@ Notes: You will need to specify what MQTT server you would like to use.
 //****************************** SETUP ***************************************//
 // Webserver for the cont rol interface front end
 var express = require('express'); // web server application
-var http = require('http');				// http basics
+var https = require('https');				// http basics
 var app = express();
 const fs = require('fs');							// instantiate express server
 const dotenv = require('dotenv')
 dotenv.config();
-var server = http.createServer({
-  key: fs.readFileSync('./key.pem'),
-  cert: fs.readFileSync('./cert.pem'),
-  passphrase: process.env.pass
-
+var server = https.createServer({
+  key: fs.readFileSync(process.env.key, 'utf-8'),
+  cert: fs.readFileSync(process.env.cert, 'utf-8'),
                     }
                     , app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
-var serverPort = 80;
+var serverPort = 443;
 let bot;
 let client;
 
