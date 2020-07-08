@@ -4,8 +4,8 @@
   "description": "WoZ Way Bot control interface",
   "main": "control.js",
   "scripts": {
-    "start":"node control.js",
-    "server":"nodemon control.js",
+    "start": "node control.js",
+    "server": "nodemon control.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "is-empty": "^1.2.0",
     "jsonwebtoken": "^8.5.1",

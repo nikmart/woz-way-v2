@@ -20,8 +20,17 @@ Notes: You will need to specify what MQTT server you would like to use.
 // Webserver for the cont rol interface front end
 var express = require('express'); // web server application
 var http = require('http');				// http basics
-var app = express();							// instantiate express server
-var server = http.Server(app);		// connects http library to server
+var app = express();
+const fs = require('fs');							// instantiate express server
+const dotenv = require('dotenv')
+dotenv.config();
+var server = http.createServer({
+  key: fs.readFileSync('./key.pem'),
+  cert: fs.readFileSync('./cert.pem'),
+  passphrase: process.env.pass
+
+                    }
+                    , app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
 var serverPort = 80;
 let bot;
