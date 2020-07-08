@@ -20,6 +20,7 @@ Notes: You will need to specify what MQTT server you would like to use.
 // Webserver for the cont rol interface front end
 var express = require('express'); // web server application
 var https = require('https');				// http basics
+var http = require('http');
 var app = express();
 const fs = require('fs');							// instantiate express server
 const dotenv = require('dotenv')
@@ -31,6 +32,16 @@ var server = https.createServer({
                     , app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
 var serverPort = 443;
+
+// create an HTTP server on port 80 and redirect to HTTPS
+var http_server = http.createServer(function(req,res){    
+    // 301 redirect (reclassifies google listings)
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+}).listen(80, function(err){
+    console.log("Node.js Express HTTPS Server Listening on Port 80");    
+});
+
 let bot;
 let client;
 
