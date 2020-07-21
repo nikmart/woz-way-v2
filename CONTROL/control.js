@@ -25,22 +25,25 @@ var app = express();
 const fs = require('fs');							// instantiate express server
 const dotenv = require('dotenv')
 dotenv.config();
-var server = https.createServer({
-  key: fs.readFileSync(process.env.key, 'utf-8'),
-  cert: fs.readFileSync(process.env.cert, 'utf-8'),
-                    }
-                    , app);		// connects http library to server
+var server = http.createServer(
+// {
+  // key: fs.readFileSync(process.env.key, 'utf-8'),
+  // cert: fs.readFileSync(process.env.cert, 'utf-8'),
+  //                   }
+  //                   , 
+                    app);		// connects http library to server
 var io = require('socket.io')(server);	// connect websocket library to server
-var serverPort = 443;
+var serverPort = process.env.port;
+
 
 // create an HTTP server on port 80 and redirect to HTTPS
-var http_server = http.createServer(function(req,res){    
-    // 301 redirect (reclassifies google listings)
-    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-    res.end();
-}).listen(80, function(err){
-    console.log("Node.js Express HTTPS Server Listening on Port 80");    
-});
+// var http_server = http.createServer(function(req,res){    
+//     // 301 redirect (reclassifies google listings)
+//     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+//     res.end();
+// }).listen(80, function(err){
+//     console.log("Node.js Express HTTPS Server Listening on Port 80");    
+// });
 
 let bot;
 let client;
