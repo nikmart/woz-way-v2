@@ -112,8 +112,8 @@ io.on('connect', function(socket) {
           break;
         case 'reconnect-phone':
           console.log(`reconnecting ${phone}`)
-          client.publish(`${bot.botId}/${phone}/sensornode`, `sensornode-${phone}`);
-          client.publish(`${bot.botId}/${phone}/zoom`, `https://cornell.zoom.us/my/imandel?pwd=bzJ6VjZnaStkc0lKcVkwTm5wWTdpUT09`);
+          client.publish(`${bot.botId}/${phone}/sensornode`, `start-data`);
+          //client.publish(`${bot.botId}/${phone}/zoom`, `https://cornell.zoom.us/my/imandel?pwd=bzJ6VjZnaStkc0lKcVkwTm5wWTdpUT09`);
           break;
       }
 
