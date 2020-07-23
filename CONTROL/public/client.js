@@ -13,6 +13,7 @@ let connected = false;
 let controls = false;
 const dataPaths = {};
 let bot = null;
+let gpsSource = null;
 
 
 function connectToBot(botId) {
@@ -256,7 +257,7 @@ socket.on('server-note', (msg) => {
 
 socket.on('data-msg', (topic, message) => {
   const topicArray = topic.split('/');
-  if (topicArray[0] === bot.botId) {
+  if (bot && topicArray[0] === bot.botId) {
     connected = true;
     if (controls === false) {
       const status = document.getElementById('connection-status');
@@ -267,21 +268,26 @@ socket.on('data-msg', (topic, message) => {
       setTimeout(() => { toggleDiv(coll); }, 1000);
       controls = true;
     }
+    gpsSource = (!gpsSource) ? topicArray[1] : gpsSource;
+
     const statusIcon = document.getElementById(`status-${topicArray[1]}`);
     statusIcon.innerText = '🟢';
     clearTimeout(timers[topicArray[1]]);
-    timers[topicArray[1]] = setTimeout(() => { statusIcon.innerText = '🔴'; }, 3000);
+    timers[topicArray[1]] = setTimeout(() => { 
+      statusIcon.innerText = '🔴';
+      gpsSource = (gpsSource === topicArray[1]) ? undefined : gpsSource;
+      }, 3000);
 
     const topicId = dataPaths[topicArray[1]][topicArray[3]][topicArray[4]];
     let lat; let lng;
     if (topicId) { document.getElementById(topicId).innerText = message; }
-    if (topic.includes('gps/latitude')) {
+    if (topic.includes(gpsSource) && topic.includes('gps/latitude')) {
       lat = parseFloat(message);
-      lng = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.longitude).innerText);
+      lng = parseFloat(document.getElementById(dataPaths[gpsSource].gps.longitude).innerText);
       redraw(lat, lng);
     }
-    if (topic.includes('gps/longitude')) {
-      lat = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.latitude).innerText);
+    if (topic.includes(gpsSource) && topic.includes('gps/longitude')) {
+      lat = parseFloat(document.getElementById(dataPaths[gpsSource].gps.latitude).innerText);
       lng = parseFloat(message);
       redraw(lat, lng);
     }
@@ -388,6 +394,8 @@ form.onsubmit = (e) => {
   socket.emit('start', bot);
   setTimeout(() => {
     status.classList.remove('connecting');
-    status.innerText = 'Error connecting!';
+    if (connected === false) {
+      status.innerText = 'Error connecting!';
+    }
   }, 15000);
 };
