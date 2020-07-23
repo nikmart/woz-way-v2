@@ -21,8 +21,9 @@ Notes: You will need to specify what MQTT server you would like to use.
 const express = require('express'); // web server application
 const https = require('https'); // http basics
 const http = require('http');
+const compression = require('compression');
 
-const app = express();
+const app = express();(compression());
 const fs = require('fs'); // instantiate express server
 const dotenv = require('dotenv');
 const mqtt = require('mqtt');
@@ -83,14 +84,19 @@ function setupMqtt(botData) {
   const dataRe = new RegExp(`${botData.botId}/.*/data`);
 
   //* ********************* MQTT MESSAGES FROM BOT ******************************//
-  client = mqtt.connect('mqtt://farlab.infosci.cornell.edu',
-    {
-      port: 1883,
-      protocolId: 'MQIsdp',
-      protocolVersion: 3,
-      username: botData.username,
-      password: botData.pass,
-    });
+  try {
+    client = mqtt.connect('mqtt://farlab.infosci.cornell.edu',
+      {
+        port: 1883,
+        protocolId: 'MQIsdp',
+        protocolVersion: 3,
+        username: botData.username,
+        password: botData.pass,
+      });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
 
   // Setup the MQTT connection and listen for messages
   client.on('connect', () => {
@@ -214,7 +220,7 @@ io.on('connect', (socket) => {
     console.log(`end session ${msg}`);
     client.publish(`${msg}/session`, `end session ${msg}`);
     client.end();
-    let bot=undefined;
+    bot = undefined;
   });
 });
 
