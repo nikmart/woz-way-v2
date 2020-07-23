@@ -383,6 +383,8 @@ disconnect.onclick = () => {
 };
 
 form.onsubmit = (e) => {
+  connected=false;
+  disconnect.style.visibility = 'hidden';
   e.preventDefault();
   const status = document.getElementById('connection-status');
   status.innerText = 'Connecting';

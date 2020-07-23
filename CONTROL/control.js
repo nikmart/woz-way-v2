@@ -125,7 +125,7 @@ function setupMqtt(botData) {
 
     if (new RegExp(`${botData.botId}/.*/sensornode`).test(topic) && message.toString() === 'data-streaming') {
       const phone = topic.split('/')[1];
-      console.log(`starting zoom ${phone}`);
+      console.log(`starting zoom ${topic}`);
       client.publish(`${botData.botId}/${phone}/zoom`, botData.zoomlink);
     }
   });
@@ -147,10 +147,14 @@ io.on('connect', (socket) => {
     client.publish(`${bot.botId}/${bot.sayId}/say`, msg);
   });
   socket.on('start', (data) => {
-    setupMqtt(data);
-    bot = data;
-
-    console.log(data);
+    if (bot && bot.botId == data.botId) {
+      console.log(`bot ${bot.botId} running`);
+    } else {
+      console.log(`adding bot ${data.botId}`);
+      setupMqtt(data);
+      bot = data;
+      console.log(data);
+    }
   });
 
   socket.on('phoneTrigger', (phone, action) => {
@@ -210,6 +214,7 @@ io.on('connect', (socket) => {
     console.log(`end session ${msg}`);
     client.publish(`${msg}/session`, `end session ${msg}`);
     client.end();
+    let bot=undefined;
   });
 });
 
