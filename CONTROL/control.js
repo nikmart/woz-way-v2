@@ -122,7 +122,7 @@ function setupMqtt(botData) {
     if (topic === 'sys-note') {
       io.emit('server-note', message.toString());
     }
-   
+
     if (new RegExp(`${botData.botId}/.*/sensornode`).test(topic) && message.toString() === 'data-streaming') {
       const phone = topic.split('/')[1];
       console.log(`starting zoom ${phone}`);

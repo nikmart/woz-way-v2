@@ -10,8 +10,10 @@ let mark;
 const current = { lat: 42.992, lng: -78.578 };
 const lineCoords = [];
 let connected = false;
+let controls = false;
 const dataPaths = {};
 let bot = null;
+
 
 function connectToBot(botId) {
   socket.emit('connect', botId);
@@ -234,9 +236,11 @@ function initMap() {
 }
 
 function redraw(lat, lng) {
-  map.panTo([lat, lng]);
-  mark.setLatLng([lat, lng]);
-  path.addLatLng([lat, lng]);
+  if (lat && lng) {
+    map.panTo([lat, lng]);
+    mark.setLatLng([lat, lng]);
+    path.addLatLng([lat, lng]);
+  }
 }
 
 initMap();
@@ -254,27 +258,33 @@ socket.on('data-msg', (topic, message) => {
   const topicArray = topic.split('/');
   if (topicArray[0] === bot.botId) {
     connected = true;
-    // console.log(topic, message)
+    if (controls === false) {
+      const status = document.getElementById('connection-status');
+      addControls(bot.phones);
+      status.classList.remove('connecting');
+      status.innerText = 'Connected!';
+      disconnect.style.visibility = 'visible';
+      setTimeout(() => { toggleDiv(coll); }, 1000);
+      controls = true;
+    }
     const statusIcon = document.getElementById(`status-${topicArray[1]}`);
     statusIcon.innerText = '🟢';
     clearTimeout(timers[topicArray[1]]);
     timers[topicArray[1]] = setTimeout(() => { statusIcon.innerText = '🔴'; }, 3000);
 
     const topicId = dataPaths[topicArray[1]][topicArray[3]][topicArray[4]];
+    let lat; let lng;
     if (topicId) { document.getElementById(topicId).innerText = message; }
-    const lat = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.latitude).innerText);
-    const lng = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.longitude).innerText);
-    if (topic.includes('gps')) {
+    if (topic.includes('gps/latitude')) {
+      lat = parseFloat(message);
+      lng = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.longitude).innerText);
       redraw(lat, lng);
     }
-    // document.getElementById("namestatus").textContent = "Bot 0 - Connected";
-    // document.getElementById("namestatus").style.color = '#1DB954';
-    // clearTimeout(timers.heartbeatTimer);
-    // timers.heartbeatTimer = setTimeout(() => {
-    //     console.log('reset timer');
-    //     document.getElementById("namestatus").textContent = "Bot 0 - Offline";
-    //     document.getElementById("namestatus").style.color = "red";
-    // }, 7000);
+    if (topic.includes('gps/longitude')) {
+      lat = parseFloat(document.getElementById(dataPaths[topicArray[1]].gps.latitude).innerText);
+      lng = parseFloat(message);
+      redraw(lat, lng);
+    }
   }
 });
 
@@ -300,7 +310,6 @@ function addControls(nophones) {
   phoneControls.textContent = '';
 
   for (let i = 0; i < nophones; i++) {
-    console.log(i);
     const item = Object.assign(document.createElement('div'), { className: 'flexitem' });
 
     const dataVals = `
@@ -378,15 +387,7 @@ form.onsubmit = (e) => {
   console.log(bot);
   socket.emit('start', bot);
   setTimeout(() => {
-    if (connected) {
-      addControls(bot.phones);
-      status.classList.remove('connecting');
-      status.innerText = 'Connected!';
-      disconnect.style.visibility = 'visible';
-      setTimeout(() => { toggleDiv(coll); }, 1000);
-    } else {
-      status.classList.remove('connecting');
-      status.innerText = 'Error connecting!';
-    }
+    status.classList.remove('connecting');
+    status.innerText = 'Error connecting!';
   }, 15000);
 };
