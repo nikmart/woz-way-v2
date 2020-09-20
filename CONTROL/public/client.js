@@ -368,8 +368,9 @@ function addControls(nophones) {
     if (i === 0) {
       sayRadio.checked = true;
       document.getElementById(`say-${sayRadio.value}`).innerText = '💬';
-      audio = Object.assign(document.createElement('button'), { innerText: 'mute', onclick() { audioToggle(this, 'phone0'); } });
+      // audio = Object.assign(document.createElement('button'), { innerText: 'mute', onclick() { audioToggle(this, 'phone0'); } });
     }
+    audio = Object.assign(document.createElement('button'), { innerText: 'mute', onclick() { audioToggle(this, `phone${i}`) } });
     phoneButtons.appendChild(audio);
     item.appendChild(phoneButtons);
   }
